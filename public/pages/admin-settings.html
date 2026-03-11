@@ -5,527 +5,1094 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Karibu Groceries - System Admin & Settings</title>
 
-    <!-- Bootstrap 5 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-
-    <!-- Google Fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Material Symbols -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Custom CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="../css/admin-settings.css" rel="stylesheet" />
+    
+    <style>
+      
+      /* Hidden by default on large screens */
+      .mobile-top-bar {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 60px;
+        background: #ffffff;
+        z-index: 999;
+        border-bottom: 1px solid #e9ecef;
+        padding: 0 20px;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      }
+      
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.4);
+        z-index: 998;
+        backdrop-filter: blur(2px);
+      }
+      .sidebar-overlay.active { display: block; }
+
+      /* When screen gets smaller than 992px (Tablets & Phones) */
+      @media (max-width: 991px) {
+        .mobile-top-bar { display: flex !important; }
+        
+        /* Hide sidebar off-screen to the left */
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+        }
+        
+        /* Class added by JS to slide it back in */
+        .sidebar.show-mobile { transform: translateX(0); }
+        
+        /* Remove the huge left margin from main content and add top padding for the mobile bar */
+        .main-content {
+            margin-left: 0 !important;
+            padding: 15px !important;
+            padding-top: 80px !important; 
+        }
+      }
+      .view-section { display: none; transition: opacity 0.4s ease; }
+      .view-section.active { display: block; opacity: 1; }
+      
+      .sidebar-nav-item { border: none; background: transparent; width: 100%; text-align: left; cursor: pointer; }
+      
+      .modal-content.custom-modal {
+        border-radius: 16px;
+        border-top: 8px solid #FFCB05 !important;
+        overflow: hidden;
+      }
+
+      .form-control-custom:focus {
+        border-color: #11d452;
+        box-shadow: 0 0 0 0.25rem rgba(17, 212, 82, 0.15);
+      }
+
+      .btn-custom { background-color: #11d452; color: white; border: none; font-weight: 600; }
+      .btn-custom:hover { background-color: #0ebd48; transform: translateY(-1px); }
+
+      .search-wrapper-creative {
+        position: relative;
+        background: #f8f9fa;
+        border-radius: 50px;
+        padding: 5px 15px;
+        border: 1px solid #e0e0e0;
+        transition: all 0.3s ease;
+      }
+      .search-wrapper-creative:focus-within {
+        border-color: #11d452;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      }
+
+      /* --- NEW DASHBOARD STYLES (Added safely here) --- */
+      .stats-cards-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 20px;
+          margin-bottom: 30px;
+      }
+      .stat-summary-card {
+          background: #ffffff;
+          border: 1px solid #e9ecef;
+          border-radius: 12px;
+          padding: 20px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+          transition: transform 0.2s ease;
+      }
+      .stat-summary-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+      .card-content-row { display: flex; justify-content: space-between; align-items: flex-start; }
+      .stat-card-label { font-size: 0.85rem; color: #6c757d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+      .stat-card-value { font-size: 1.8rem; font-weight: 700; color: #212529; margin: 0; }
+      
+      .stat-icon-box { width: 45px; height: 45px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+      .primary-icon-box { background-color: #e6f9ed; color: #11d452; }
+      .yellow-icon-box { background-color: #fff8e6; color: #ffc107; }
+      .blue-icon-box { background-color: #e6f0ff; color: #0d6efd; }
+      .red-icon-box { background-color: #ffe6e6; color: #dc3545; }
+
+      .management-sections-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+      @media (max-width: 992px) { .management-sections-grid { grid-template-columns: 1fr; } }
+      
+      .dashboard-panel { background: #fff; border: 1px solid #e9ecef; border-radius: 12px; padding: 24px; }
+      .panel-heading { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; color: #212529; border-bottom: 2px solid #f8f9fa; padding-bottom: 10px; }
+      
+      .slider-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+      .price-range-slider { flex-grow: 1; accent-color: #11d452; }
+      .slider-value-badge { background: #f8f9fa; padding: 6px 15px; border-radius: 8px; font-weight: 700; color: #11d452; border: 1px solid #e9ecef; min-width: 70px; text-align: center; }
+      
+      .sync-system-button { display: flex; align-items: center; gap: 8px; background-color: #11d452; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; transition: all 0.2s; }
+      .sync-system-button:hover { background-color: #0ebd48; }
+      .spin-icon { animation: spin 1s linear infinite; }
+      @keyframes spin { 100% { transform: rotate(360deg); } }
+
+      .quick-action-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 15px; background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; margin-bottom: 10px; font-weight: 500; color: #495057; transition: 0.2s; text-align: left; }
+      .quick-action-btn:hover { background: #e6f9ed; border-color: #11d452; color: #11d452; }
+      .quick-action-btn span.material-symbols-outlined { font-size: 20px; }
+
+      /* ========================================== */
+      /* --- UNIVERSAL MOBILE RESPONSIVENESS ---    */
+      /* ========================================== */
+      
+      @media (max-width: 991px) {
+        .mobile-top-bar { display: flex !important; }
+        
+        /* Hides the desktop-only navbar on the manager page so it doesn't clash */
+        .top-navbar { display: none !important; }
+        
+        /* Targets BOTH types of sidebars */
+        .sidebar, .admin-sidebar {
+            position: fixed !important; 
+            top: 0; left: 0; bottom: 0;
+            z-index: 1050 !important;
+            background-color: #ffffff !important;
+            transform: translateX(-100%) !important;
+            transition: transform 0.3s ease-in-out !important;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.2) !important;
+            height: 100vh !important;
+        }
+        
+        /* Slide it back in */
+        .sidebar.show-mobile, .admin-sidebar.show-mobile { 
+            transform: translateX(0) !important; 
+        }
+        
+        /* Targets ALL your main content wrappers */
+        .admin-layout-container, .main-layout, .content-wrapper, .main-content {
+            margin-left: 0 !important;
+            padding: 15px !important;
+            padding-top: 80px !important; 
+            width: 100% !important;
+        }
+      }
+
+
+
+    </style>
   </head>
-  <body class="light-theme">
-    <!-- Main Application Container -->
+ <body> 
+    <div class="mobile-top-bar">
+      <button class="btn btn-light border-0 d-flex align-items-center p-2" onclick="toggleSidebar()">
+        <span class="material-symbols-outlined text-dark">menu</span>
+      </button>
+    </div>
+
+    <div class="sidebar-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+
     <div class="admin-layout-container">
-      <!-- Left Sidebar Panel -->
       <aside class="admin-sidebar">
-        <!-- Sidebar Header with Logo -->
         <div class="sidebar-logo-section">
-          <div class="company-logo-circle">
-            <span class="material-symbols-outlined">eco</span>
-          </div>
+          <div class="company-logo-circle"><span class="material-symbols-outlined">eco</span></div>
           <div class="company-name-box">
             <h1 class="company-name">Karibu Groceries</h1>
             <p class="panel-subtitle">System Admin Panel</p>
           </div>
         </div>
 
-        <!-- Sidebar Navigation Menu -->
         <nav class="sidebar-nav-menu">
-          <a href="#" class="sidebar-nav-item">
+          <button onclick="switchView('dashboard-view')" class="sidebar-nav-item active" id="nav-dashboard">
             <span class="material-symbols-outlined">dashboard</span>
             <span>Dashboard</span>
-          </a>
-          <a href="#" class="sidebar-nav-item active">
-            <span class="material-symbols-outlined filled-icon">settings</span>
-            <span>Settings</span>
-          </a>
-          <a href="#user-management-section" class="sidebar-nav-item">
+          </button>
+          <button onclick="switchView('user-management-view')" class="sidebar-nav-item" id="nav-users">
             <span class="material-symbols-outlined">group</span>
             <span>User Management</span>
-          </a>
-          <a href="#" class="sidebar-nav-item">
-            <span class="material-symbols-outlined">payments</span>
-            <span>Price Controls</span>
-          </a>
-          <a href="#" class="sidebar-nav-item">
-            <span class="material-symbols-outlined">list_alt</span>
-            <span>System Logs</span>
-          </a>
-          <a href="#" class="sidebar-nav-item">
-            <span class="material-symbols-outlined">notifications</span>
-            <span>Notifications</span>
-          </a>
-        </nav>
+          </button>
+           
+        
 
-        <!-- Sidebar Footer with User Profile -->
-        <div class="sidebar-footer-profile">
-          <div class="profile-user-card">
-            <div
-              class="profile-avatar-image"
-              style="
-                background-image: url(&quot;https://lh3.googleusercontent.com/aida-public/AB6AXuACs2b1NHMLWFRXBulhXHoACdZeYN79nF4b7qq06SstN4nQfxXHQAhbl8dMEDgzRUeIZe8nJ9hpAq-Vp3z100le-JgW_VykI4x2o6J01hQoqlqRtOi3oAeak8d_5iBPEwXtNsfkLi5DAT9tZ52kQujbeARY6J9ctTYIdWQrvrhVzTD6dAz59yzV6z27ZoJCcI1ce_fw5dT8HqSyFIxNdhBwbaN3VWxv9lqNj2O1loUPKUMcbs8LiC0nlLaWHJOYPujV1BPexEQ3TKQ&quot;);
-              "
-            ></div>
-            <div class="profile-user-info">
-              <p class="profile-user-name">James Mwangi</p>
-              <p class="profile-user-role">General Manager</p>
+        <div class="sidebar-footer-profile" style="margin-top: 550px;">
+            <div class="profile-user-card">
+                <div class="profile-avatar-image" style="background-image: url('https://ui-avatars.com/api/?name=James+Mwangi');"></div>
+                <div class="profile-user-info">
+                  <p class="profile-user-name">James Mwangi</p>
+                  <p class="profile-user-role">General Manager</p>
+                </div>
+                <span class="material-symbols-outlined logout-icon">logout</span>
             </div>
-            <span class="material-symbols-outlined logout-icon">logout</span>
-          </div>
         </div>
       </aside>
-
-      <!-- Main Content Area -->
-      <main class="admin-main-content">
-        <!-- Top Navigation Header -->
-        <header class="admin-top-header">
-          <div class="header-left-section">
-            <h2 class="header-page-title">Admin Settings</h2>
-            <div class="header-divider"></div>
-            <div class="header-search-container">
-              <label class="search-input-wrapper">
-                <span class="material-symbols-outlined search-icon-position"
-                  >search</span
-                >
-                <input
-                  type="text"
-                  class="admin-search-input"
-                  placeholder="Search parameters..."
-                />
-              </label>
-            </div>
-          </div>
-          <div class="header-right-actions">
-            <button class="sync-system-button">
-              <span class="material-symbols-outlined">sync</span>
+    <main class="admin-main-content">
+  <header class="admin-top-header">
+      <h2 class="header-page-title" id="page-title">Dashboard</h2>
+      <div class="header-right-actions">
+          <button class="sync-system-button" onclick="syncSystem()" id="btn-sync">
+              <span class="material-symbols-outlined" id="sync-icon">sync</span>
               <span>Sync System</span>
-            </button>
-            <button class="help-icon-button">
-              <span class="material-symbols-outlined">help_outline</span>
-            </button>
-          </div>
-        </header>
+          </button>
+      </div>
+  </header>
 
-        <!-- Main Content Wrapper -->
-        <div class="admin-content-wrapper">
-          <!-- Breadcrumb Navigation -->
-          <div class="breadcrumb-trail">
-            <a href="#" class="breadcrumb-link-item">Karibu Groceries</a>
-            <span class="breadcrumb-slash">/</span>
-            <a href="#" class="breadcrumb-link-item">System Admin</a>
-            <span class="breadcrumb-slash">/</span>
-            <span class="breadcrumb-current-item">Settings</span>
-          </div>
-
-          <!-- Quick Statistics Cards -->
-          <div class="stats-cards-grid">
-            <!-- Active Users Card -->
-            <div class="stat-summary-card">
+  <div class="admin-content-wrapper">
+    
+    <div id="dashboard-view" class="view-section active">
+      
+      <div class="stats-cards-grid">
+          
+          <div class="stat-summary-card">
               <div class="card-content-row">
                 <div class="card-stat-info">
-                  <p class="stat-card-label">Total Active Users</p>
-                  <p class="stat-card-value">42</p>
+                  <p class="stat-card-label">Active Staff</p>
+                  <p class="stat-card-value" id="count-users">0</p>
                 </div>
-                <div class="stat-icon-box primary-icon-box">
-                  <span class="material-symbols-outlined">group</span>
-                </div>
+                <div class="stat-icon-box primary-icon-box"><span class="material-symbols-outlined">group</span></div>
               </div>
-              <p class="stat-card-footer positive-change">+3 since last week</p>
-            </div>
-
-            <!-- Pending Logs Card -->
-            <div class="stat-summary-card">
+          </div>
+          
+          <div class="stat-summary-card">
               <div class="card-content-row">
                 <div class="card-stat-info">
-                  <p class="stat-card-label">Pending Logs</p>
-                  <p class="stat-card-value">128</p>
+                  <p class="stat-card-label">Total Revenue (All Branches)</p>
+                  <p class="stat-card-value text-success" id="total-revenue-all" style="font-size: 1.4rem; padding-top: 8px;">UGX 0</p>
                 </div>
-                <div class="stat-icon-box yellow-icon-box">
-                  <span class="material-symbols-outlined">history</span>
-                </div>
+                <div class="stat-icon-box green-icon-box" style="background-color: #d1e7dd; color: #0f5132; padding: 12px; border-radius: 8px;"><span class="material-symbols-outlined">account_balance</span></div>
               </div>
-              <p class="stat-card-footer neutral-info">24 require review</p>
-            </div>
+          </div>
 
-            <!-- Last Price Update Card -->
-            <div class="stat-summary-card">
+          <div class="stat-summary-card">
               <div class="card-content-row">
                 <div class="card-stat-info">
-                  <p class="stat-card-label">Last Price Update</p>
-                  <p class="stat-card-value">2h ago</p>
+                  <p class="stat-card-label">Total Volume Sold</p>
+                  <p class="stat-card-value" id="total-volume-all" style="font-size: 1.4rem; padding-top: 8px;">0 kg</p>
                 </div>
-                <div class="stat-icon-box blue-icon-box">
-                  <span class="material-symbols-outlined">sell</span>
-                </div>
+                <div class="stat-icon-box blue-icon-box"><span class="material-symbols-outlined">scale</span></div>
               </div>
-              <p class="stat-card-footer neutral-info">By Admin: Mwangi J.</p>
-            </div>
           </div>
 
-          <!-- Main Management Grid -->
-          <div class="management-sections-grid">
-            <!-- Global Price Adjustments Section -->
-            <section class="management-section">
-              <div class="section-header-row">
-                <h3 class="section-heading">Global Price Adjustments</h3>
-                <button class="view-history-link">
-                  <span class="material-symbols-outlined">history</span>
-                  <span>View History</span>
-                </button>
-              </div>
-              <div class="price-adjustment-card">
-                <!-- Grains Markup Slider -->
-                <div class="price-slider-group">
-                  <div class="slider-label-row">
-                    <label class="slider-label-text"
-                      >Grains & Cereals Markup</label
-                    >
-                    <span class="markup-badge positive-markup">+12%</span>
-                  </div>
-                  <input type="range" class="price-range-slider" value="60" />
+         
+      </div>
+
+      <div class="management-sections-grid mt-4" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+        
+        <section class="dashboard-panel" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h3 class="panel-heading mb-4" style="font-size: 1.2rem; font-weight: bold; color: #333 border-bottom: 1px solid #eee; padding-bottom: 10px;">
+              <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.3rem;">analytics</span> 
+              Branch Sales Aggregations
+            </h3>
+            
+            <div class="branch-aggregation-content">
+                <div class="branch-stat-item" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 5px solid #0d6efd;">
+                    <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #0d6efd;">Maganjo Branch</h4>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #555;">
+                        <span>Total Revenue: <strong id="maganjo-total-rev">UGX 0</strong></span>
+                        <span>Total Volume: <strong id="maganjo-total-vol">0 kg</strong></span>
+                    </div>
                 </div>
-
-                <!-- Vegetables Slider -->
-                <div class="price-slider-group">
-                  <div class="slider-label-row">
-                    <label class="slider-label-text">Vegetables & Roots</label>
-                    <span class="markup-badge positive-markup">+5%</span>
-                  </div>
-                  <input type="range" class="price-range-slider" value="25" />
+                
+                <div class="branch-stat-item" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; border-left: 5px solid #198754;">
+                    <h4 style="margin: 0 0 10px 0; font-size: 1.1rem; color: #198754;">Matugga Branch</h4>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.95rem; color: #555;">
+                        <span>Total Revenue: <strong id="matugga-total-rev">UGX 0</strong></span>
+                        <span>Total Volume: <strong id="matugga-total-vol">0 kg</strong></span>
+                    </div>
                 </div>
-
-                <!-- Fruits Slider -->
-                <div class="price-slider-group">
-                  <div class="slider-label-row">
-                    <label class="slider-label-text">Fruits & Seasonals</label>
-                    <span class="markup-badge negative-markup">-2%</span>
-                  </div>
-                  <input type="range" class="price-range-slider" value="40" />
-                </div>
-
-                <!-- Apply Button -->
-                <div class="apply-changes-section">
-                  <button class="apply-global-changes-button">
-                    Apply Global Changes
-                  </button>
-                  <p class="affected-products-note">
-                    Will affect 1,240 active products
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <!-- Notification Controls Section -->
-            <section class="management-section">
-              <div class="section-header-row">
-                <h3 class="section-heading">Notification Controls</h3>
-              </div>
-              <div class="notification-controls-card">
-                <!-- Toggle Items -->
-                <div class="notification-toggles-list">
-                  <!-- Low Stock Alerts Toggle -->
-                  <div class="notification-toggle-item">
-                    <div class="toggle-item-info">
-                      <span class="material-symbols-outlined toggle-icon"
-                        >inventory_2</span
-                      >
-                      <div class="toggle-text-content">
-                        <p class="toggle-title">Low Stock Alerts</p>
-                        <p class="toggle-description">
-                          Notify when items reach threshold
-                        </p>
-                      </div>
-                    </div>
-                    <div class="toggle-switch active-toggle">
-                      <div class="toggle-knob"></div>
-                    </div>
-                  </div>
-
-                  <!-- Daily Sales Report Toggle -->
-                  <div class="notification-toggle-item">
-                    <div class="toggle-item-info">
-                      <span class="material-symbols-outlined toggle-icon"
-                        >mail</span
-                      >
-                      <div class="toggle-text-content">
-                        <p class="toggle-title">Daily Sales Report</p>
-                        <p class="toggle-description">
-                          EOD summary to management
-                        </p>
-                      </div>
-                    </div>
-                    <div class="toggle-switch active-toggle">
-                      <div class="toggle-knob"></div>
-                    </div>
-                  </div>
-
-                  <!-- Security Breach Alerts Toggle -->
-                  <div class="notification-toggle-item">
-                    <div class="toggle-item-info">
-                      <span class="material-symbols-outlined toggle-icon"
-                        >priority_high</span
-                      >
-                      <div class="toggle-text-content">
-                        <p class="toggle-title">Security Breach Alerts</p>
-                        <p class="toggle-description">
-                          Immediate SMS for failed logins
-                        </p>
-                      </div>
-                    </div>
-                    <div class="toggle-switch inactive-toggle">
-                      <div class="toggle-knob"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Threshold Settings -->
-                <div class="threshold-settings-section">
-                  <div class="threshold-inputs-row">
-                    <div class="threshold-input-group">
-                      <label class="threshold-label">Stock Threshold</label>
-                      <input
-                        type="number"
-                        class="threshold-input-field"
-                        value="100"
-                      />
-                    </div>
-                    <div class="threshold-input-group">
-                      <label class="threshold-label">Units</label>
-                      <select class="threshold-select-field">
-                        <option>Bags (90kg)</option>
-                        <option>Kilograms</option>
-                        <option>Crates</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          <!-- User Management Table Section -->
-          <section class="users-table-section">
-            <div class="table-section-header">
-              <h3 class="section-heading" id="user-management-section">
-                User Management
-              </h3>
-              <div class="table-header-actions">
-                <button class="filter-users-button">
-                  <span class="material-symbols-outlined">filter_list</span>
-                  <span>Filter</span>
-                </button>
-                <button class="add-user-button">
-                  <span class="material-symbols-outlined">person_add</span>
-                  <span>Add New User</span>
-                </button>
-              </div>
             </div>
+        </section>
 
-            <div class="users-table-container">
-              <table class="users-management-table">
-                <thead class="table-head-section">
-                  <tr>
-                    <th class="table-column-header">User</th>
-                    <th class="table-column-header">Role</th>
-                    <th class="table-column-header">Last Login</th>
-                    <th class="table-column-header">Status</th>
-                    <th class="table-column-header text-end">Actions</th>
-                  </tr>
-                </thead>
-                <tbody class="table-body-section">
-                  <!-- User Row 1 -->
-                  <tr class="user-table-row">
-                    <td class="table-data-cell">
-                      <div class="user-info-cell">
-                        <div class="user-avatar-initials">EK</div>
-                        <div class="user-details-text">
-                          <p class="user-full-name">Ezra Kiprop</p>
-                          <p class="user-email-address">ezra.k@karibu.com</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="table-data-cell">Warehouse Supervisor</td>
-                    <td class="table-data-cell muted-text">Today, 08:45 AM</td>
-                    <td class="table-data-cell">
-                      <span class="status-indicator active-status">
-                        <span class="status-dot"></span>
-                        Active
-                      </span>
-                    </td>
-                    <td class="table-data-cell text-end">
-                      <button class="table-action-button edit-action">
-                        <span class="material-symbols-outlined">edit</span>
-                      </button>
-                      <button class="table-action-button delete-action">
-                        <span class="material-symbols-outlined">delete</span>
-                      </button>
-                    </td>
-                  </tr>
+        <section class="dashboard-panel" style="background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h3 class="panel-heading mb-4" style="font-size: 1.2rem; font-weight: bold; color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">Quick Admin Actions</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button class="quick-action-btn" onclick="runMaintenance('Clear Cache')" style="text-align: left; padding: 12px; border: 1px solid #eee; background: #fafafa; border-radius: 6px; cursor: pointer;">
+                  <span class="material-symbols-outlined text-warning" style="vertical-align: middle;">cleaning_services</span>
+                  Clear System Cache
+              </button>
+              
+              <button class="quick-action-btn" onclick="runMaintenance('Backup Data')" style="text-align: left; padding: 12px; border: 1px solid #eee; background: #fafafa; border-radius: 6px; cursor: pointer;">
+                  <span class="material-symbols-outlined text-primary" style="vertical-align: middle;">cloud_download</span>
+                  Backup Database Now
+              </button>
 
-                  <!-- User Row 2 -->
-                  <tr class="user-table-row">
-                    <td class="table-data-cell">
-                      <div class="user-info-cell">
-                        <div class="user-avatar-initials">SN</div>
-                        <div class="user-details-text">
-                          <p class="user-full-name">Sarah Njeri</p>
-                          <p class="user-email-address">sarah.n@karibu.com</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="table-data-cell">Sales Agent</td>
-                    <td class="table-data-cell muted-text">
-                      Yesterday, 04:12 PM
-                    </td>
-                    <td class="table-data-cell">
-                      <span class="status-indicator active-status">
-                        <span class="status-dot"></span>
-                        Active
-                      </span>
-                    </td>
-                    <td class="table-data-cell text-end">
-                      <button class="table-action-button edit-action">
-                        <span class="material-symbols-outlined">edit</span>
-                      </button>
-                      <button class="table-action-button delete-action">
-                        <span class="material-symbols-outlined">delete</span>
-                      </button>
-                    </td>
-                  </tr>
-
-                  <!-- User Row 3 -->
-                  <tr class="user-table-row">
-                    <td class="table-data-cell">
-                      <div class="user-info-cell">
-                        <div class="user-avatar-initials">PO</div>
-                        <div class="user-details-text">
-                          <p class="user-full-name">Patrick Omondi</p>
-                          <p class="user-email-address">p.omondi@karibu.com</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="table-data-cell">Inventory Manager</td>
-                    <td class="table-data-cell muted-text">3 days ago</td>
-                    <td class="table-data-cell">
-                      <span class="status-indicator inactive-status">
-                        <span class="status-dot"></span>
-                        Inactive
-                      </span>
-                    </td>
-                    <td class="table-data-cell text-end">
-                      <button class="table-action-button edit-action">
-                        <span class="material-symbols-outlined">edit</span>
-                      </button>
-                      <button class="table-action-button delete-action">
-                        <span class="material-symbols-outlined">delete</span>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <!-- Table Footer with Pagination -->
-              <div class="table-footer-pagination">
-                <p class="pagination-info-text">Showing 3 of 42 active users</p>
-                <div class="pagination-button-group">
-                  <button class="pagination-nav-button">Previous</button>
-                  <button class="pagination-page-button active-page">1</button>
-                  <button class="pagination-page-button">2</button>
-                  <button class="pagination-nav-button">Next</button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- System Logs Section -->
-          <section class="system-logs-section">
-            <div class="logs-section-header">
-              <h3 class="section-heading">System Logs</h3>
-              <button class="download-audit-link">
-                Download Audit Log (.csv)
+              <button class="quick-action-btn" onclick="runMaintenance('Export Logs')" style="text-align: left; padding: 12px; border: 1px solid #eee; background: #fafafa; border-radius: 6px; cursor: pointer;">
+                  <span class="material-symbols-outlined text-success" style="vertical-align: middle;">receipt_long</span>
+                  Export Error Logs (CSV)
               </button>
             </div>
-
-            <div class="system-logs-container">
-              <div class="logs-list-wrapper">
-                <!-- Log Entry 1 - Info -->
-                <div class="log-entry-row">
-                  <span class="log-status-dot info-dot"></span>
-                  <span class="log-timestamp">2023-10-24 14:32</span>
-                  <span class="log-level-badge info-badge">INFO</span>
-                  <p class="log-message-text">
-                    User <span class="log-user-name">Mwangi J.</span> updated
-                    global markup for 'Grains' from 10% to 12%.
-                  </p>
-                  <span class="material-symbols-outlined log-expand-icon"
-                    >open_in_new</span
-                  >
-                </div>
-
-                <!-- Log Entry 2 - Error -->
-                <div class="log-entry-row error-log-row">
-                  <span class="log-status-dot error-dot"></span>
-                  <span class="log-timestamp">2023-10-24 13:10</span>
-                  <span class="log-level-badge error-badge">ERROR</span>
-                  <p class="log-message-text">
-                    Database connection failed during bulk inventory sync.
-                    <span class="retry-link">Retry sync?</span>
-                  </p>
-                  <span class="material-symbols-outlined log-expand-icon"
-                    >open_in_new</span
-                  >
-                </div>
-
-                <!-- Log Entry 3 - Warning -->
-                <div class="log-entry-row">
-                  <span class="log-status-dot warning-dot"></span>
-                  <span class="log-timestamp">2023-10-24 11:55</span>
-                  <span class="log-level-badge warning-badge">WARN</span>
-                  <p class="log-message-text">
-                    Inventory threshold reached for item 'White Maize (Grade
-                    1)'. Only 12 bags remaining.
-                  </p>
-                  <span class="material-symbols-outlined log-expand-icon"
-                    >open_in_new</span
-                  >
-                </div>
-
-                <!-- Log Entry 4 - Info -->
-                <div class="log-entry-row">
-                  <span class="log-status-dot info-dot"></span>
-                  <span class="log-timestamp">2023-10-24 09:22</span>
-                  <span class="log-level-badge info-badge">INFO</span>
-                  <p class="log-message-text">
-                    System automatic backup completed successfully. (Backup ID:
-                    BK-9942)
-                  </p>
-                  <span class="material-symbols-outlined log-expand-icon"
-                    >open_in_new</span
-                  >
-                </div>
-              </div>
-
-              <button class="view-all-logs-button">View All System Logs</button>
-            </div>
-          </section>
-        </div>
-      </main>
+        </section>
+        
+      </div>
+    </div>
+  </div>
+</main>
+          <div id="user-management-view" class="view-section" style="width: 100%;">
+  <section class="users-table-section" style="width: 100%;">
+    
+    <div class="admin-top-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 20px;">
+      
+      <div class="search-container" style="flex-grow: 1; max-width: 400px;">
+           <input type="text" id="userSearchInput" class="form-control search-wrapper-creative" placeholder="Search by name, role, or branch..." style="width: 100%;">                 
+      </div>
+      
+      <div class="table-header-actions">
+        <button class="btn btn-custom px-4" style="border-radius: 50px; background-color: #198754; color: white; border: none; padding: 10px 20px;" onclick="openAddModal()">
+          <span class="material-symbols-outlined align-middle me-1" style="font-size: 20px;">person_add</span>
+          <span>Add New Staff</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Bootstrap 5 JS Bundle -->
+    <div class="users-table-container" style="width: 100%; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 15px;">
+      <table class="users-management-table w-100" style="width: 100%; text-align: left;">
+        <thead class="table-head-section">
+          <tr style="border-bottom: 2px solid #eee;">
+            <th class="table-column-header" style="padding: 12px 8px;">User</th>
+            <th class="table-column-header" style="padding: 12px 8px;">Role</th>
+            <th class="table-column-header" style="padding: 12px 8px;">Branch</th>
+            <th class="table-column-header text-end" style="padding: 12px 8px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="table-body-section" id="userTableBody">
+          </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+<div class="col-12 col-xl-4"> <div class="bg-white rounded shadow-sm h-100" style="padding: 24px;">
+        
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <h5 class="mb-0 fw-bold">Recent Alerts</h5>
+           
+        </div>
+
+        <div id="recentAlertsContainer" class="d-flex flex-column" style="overflow-y: auto; max-height: 500px; padding-right: 10px;">
+            <div class="text-center text-muted mt-4">Loading alerts...</div>
+        </div>
+
+    </div>
+</div>
+
+              </div>
+            </div>
+          </div>
+      </main>
+
+
+      
+    
+    </div>
+
+    <div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content custom-modal">
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold" id="modalTitle">Add New Staff</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-4">
+            <form id="userForm">
+              <input type="hidden" id="userId">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label small fw-bold text-muted">FULL NAME</label>
+                  <input type="text" id="userName" class="form-control form-control-custom" placeholder="John Doe" required>
+                </div>
+              <div class="col-12" id="passwordFieldGroup">
+                       <label class="form-label small fw-bold text-muted">SET PASSWORD</label>
+                       <input type="password" id="userPassword" class="form-control form-control-custom" placeholder="Minimum 6 characters" required>
+              </div>
+                <div class="col-12">
+                  <label class="form-label small fw-bold text-muted">EMAIL ADDRESS</label>
+                  <input type="email" id="userEmail" class="form-control form-control-custom" placeholder="john@karibu.com" required>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold text-muted">ROLE</label>
+                  <select id="userRole" class="form-select form-control-custom">
+                    <option value="Sales Agent">Sales Agent</option>
+                    <option value="Manager">Manager</option>
+                    <option value="Director">Director</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold text-muted">BRANCH</label>
+                  <select id="userBranch" class="form-select form-control-custom">
+                    <option value="Maganjo">Maganjo</option>
+                    <option value="Matugga">Matugga</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-custom w-100 mt-4 py-2">
+                <span id="saveBtnText">Save User</span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+
+  <script>
+    
+    // Updates the visual percentage on the slider
+    function updateSliderValue(value) {
+        const display = document.getElementById('slider-display');
+        const prefix = value > 0 ? '+' : '';
+        display.innerText = `${prefix}${value}%`;
+        
+        if (value > 0) display.style.color = '#11d452';
+        else if (value < 0) display.style.color = '#dc3545';
+        else display.style.color = '#6c757d';
+    }
+
+    // Handles the top right Sync button
+    function syncSystem() {
+        const icon = document.getElementById('sync-icon');
+        icon.classList.add('spin-icon');
+        
+        Swal.fire({
+            title: 'Syncing...', text: 'Updating cross-branch data.', icon: 'info',
+            toast: true, position: 'top-end', showConfirmButton: false, timer: 1500,
+            didClose: () => {
+                icon.classList.remove('spin-icon');
+                Swal.fire({ title: 'Synced!', icon: 'success', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+            }
+        });
+    }
+
+    // Handles the Price Change Slider submission
+    function confirmGlobalPriceChange() {
+        const val = document.getElementById('global-price-slider').value;
+        if (val == 0) return Swal.fire('No Changes', 'Adjust the slider first.', 'info');
+
+        Swal.fire({
+            title: 'Are you sure?',
+            html: `You are about to change prices company-wide by <b>${val}%</b>.`,
+            icon: 'warning', showCancelButton: true, confirmButtonColor: '#11d452',
+            confirmButtonText: 'Apply Everywhere'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire('Applied!', 'Prices have been updated.', 'success');
+                document.getElementById('global-price-slider').value = 0;
+                updateSliderValue(0);
+            }
+        });
+    }
+
+    // Handles the Quick Action buttons
+    function runMaintenance(actionName) {
+        Swal.fire({
+            title: `Running: ${actionName}`,
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+        setTimeout(() => {
+            Swal.fire('Complete', `${actionName} finished successfully.`, 'success');
+        }, 1200);
+    }
+    // ==========================================
+
+
+    // ==========================================
+    // --- YOUR ORIGINAL UNTOUCHED API LOGIC ---
+    // ==========================================
+    
+    // Initialize Bootstrap Modal
+    const userModal = new bootstrap.Modal(document.getElementById('userModal'));
+    
+    // Correct API URL prefix as per your server.js mount point
+    const API_URL = 'http://localhost:3000/api/auth';
+
+    /**
+     * 7. Search & Filter Logic
+     * This filters the user table in real-time as you type.
+     */
+    document.getElementById('userSearchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#userTableBody tr');
+
+        tableRows.forEach(row => {
+            const rowText = row.innerText.toLowerCase();
+            if (rowText.includes(searchTerm)) {
+                row.style.display = "";
+                row.style.backgroundColor = "transparent"; 
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        const visibleRows = Array.from(tableRows).filter(r => r.style.display !== "none");
+        const tbody = document.getElementById('userTableBody');
+        
+        if (visibleRows.length === 0 && searchTerm !== "") {
+            if (!document.getElementById('no-results-row')) {
+                const noResults = document.createElement('tr');
+                noResults.id = 'no-results-row';
+                noResults.innerHTML = `<td colspan="4" class="text-center py-4 text-muted">No staff found matching "${searchTerm}"</td>`;
+                tbody.appendChild(noResults);
+            }
+        } else {
+            const existingMsg = document.getElementById('no-results-row');
+            if (existingMsg) existingMsg.remove();
+        }
+    });
+
+    /**
+     * 1. Navigation Switcher 
+     */
+    function switchView(viewId) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.sidebar-nav-item').forEach(b => b.classList.remove('active'));
+        
+        const selectedView = document.getElementById(viewId);
+        if (selectedView) {
+            selectedView.classList.add('active');
+        }
+
+        if (viewId === 'dashboard-view') {
+            document.getElementById('nav-dashboard').classList.add('active');
+            document.getElementById('page-title').innerText = "Dashboard";
+            fetchUsers();
+        } else if (viewId === 'user-management-view') {
+            document.getElementById('nav-users').classList.add('active');
+            document.getElementById('page-title').innerText = "User Management";
+            fetchUsers(); 
+        } else if (viewId === 'activity-alerts-view') {
+            // NEW ROUTE
+            document.getElementById('nav-activity').classList.add('active');
+            document.getElementById('page-title').innerText = "Activity & Alerts";
+            fetchActivityData(); // Load the logs and alerts
+        }
+    }
+
+    /**
+     * 2. Fetch Users
+     */
+    async function fetchUsers() {
+        try {
+            const response = await fetch(`${API_URL}/users`);
+            if (!response.ok) throw new Error('Failed to load users');
+            const users = await response.json();
+            renderUsers(users);
+        } catch (err) {
+            console.error("Fetch error:", err);
+            document.getElementById('userTableBody').innerHTML = 
+                '<tr><td colspan="4" class="text-center text-danger">Unable to load staff from database.</td></tr>';
+        }
+    }
+
+    /**
+     * 3. Render Table
+     */
+    function renderUsers(usersList) {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = usersList.map(user => `
+            <tr class="user-table-row">
+                <td class="table-data-cell">
+                    <div class="user-info-cell">
+                        <div class="user-avatar-initials">${(user.username || 'U').substring(0,2).toUpperCase()}</div>
+                        <div class="user-details-text">
+                            <p class="user-full-name">${user.username}</p>
+                            <p class="user-email-address text-muted">${user.email || 'No email'}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="table-data-cell">${user.role}</td>
+                <td class="table-data-cell">${user.branch}</td>
+                <td class="table-data-cell text-end">
+                    <button onclick="editUser('${user._id}')" class="table-action-button edit-action">
+                        <span class="material-symbols-outlined">edit</span>
+                    </button>
+                    <button onclick="deleteUser('${user._id}')" class="table-action-button delete-action">
+                        <span class="material-symbols-outlined">delete</span>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+        
+        const countElement = document.getElementById('count-users');
+        if (countElement) countElement.innerText = usersList.length;
+    }
+
+    /**
+     * 4. Modal Controls (Add/Edit)
+     */
+    function openAddModal() {
+        document.getElementById('userForm').reset();
+        document.getElementById('userId').value = ''; 
+        
+        const pwdGroup = document.getElementById('passwordFieldGroup');
+        if(pwdGroup) pwdGroup.style.display = 'block';
+
+        document.getElementById('modalTitle').innerText = "Add New Staff";
+        document.getElementById('saveBtnText').innerText = "Register Staff";
+        userModal.show();
+    }
+
+    window.editUser = async function(userId) {
+        const token = localStorage.getItem('token');
+
+        Swal.fire({
+            title: 'Loading User Data...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        try {
+            const getResponse = await fetch(`${API_URL}/users/${userId}`, {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!getResponse.ok) throw new Error('Could not fetch user data');
+            const user = await getResponse.json();
+
+            const { value: formValues } = await Swal.fire({
+                title: 'Edit Staff Member',
+                // We use your existing Bootstrap and custom CSS classes here
+                html: `
+                    <div class="text-start mt-3" style="padding: 0 5px;">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted" style="letter-spacing: 0.5px;">FULL NAME</label>
+                            <input id="swal-username" class="form-control form-control-custom" value="${user.username}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted" style="letter-spacing: 0.5px;">EMAIL ADDRESS</label>
+                            <input id="swal-email" type="email" class="form-control form-control-custom" value="${user.email || ''}">
+                        </div>
+                        <div class="row g-3 mb-2">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted" style="letter-spacing: 0.5px;">ROLE</label>
+                                <select id="swal-role" class="form-select form-control-custom">
+                                    <option value="Sales Agent" ${user.role === 'Sales Agent' ? 'selected' : ''}>Sales Agent</option>
+                                    <option value="Manager" ${user.role === 'Manager' ? 'selected' : ''}>Manager</option>
+                                    <option value="Director" ${user.role === 'Director' ? 'selected' : ''}>Director</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted" style="letter-spacing: 0.5px;">BRANCH</label>
+                                <select id="swal-branch" class="form-select form-control-custom">
+                                    <option value="Maganjo" ${user.branch === 'Maganjo' ? 'selected' : ''}>Maganjo</option>
+                                    <option value="Matugga" ${user.branch === 'Matugga' ? 'selected' : ''}>Matugga</option>
+                                    <option value="N/A" ${user.branch === 'N/A' ? 'selected' : ''}>N/A</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                width: '500px', // Makes the modal a bit wider to fit the columns
+                focusConfirm: false,
+                showCancelButton: true,
+                showCloseButton: true,
+                confirmButtonColor: '#11d452', // Your theme green
+                cancelButtonColor: '#f8f9fa',
+                customClass: {
+                    cancelButton: 'text-dark border fw-bold',
+                    confirmButton: 'fw-bold',
+                    popup: 'custom-modal', // Applies your yellow top-border style!
+                    title: 'fs-4 fw-bold'
+                },
+                confirmButtonText: '<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px;">save</span> Save Changes',
+                cancelButtonText: 'Cancel',
+                preConfirm: () => {
+                    // Logic remains 100% untouched
+                    return {
+                        username: document.getElementById('swal-username').value,
+                        email: document.getElementById('swal-email').value,
+                        role: document.getElementById('swal-role').value,
+                        branch: document.getElementById('swal-branch').value
+                    }
+                }
+            });
+
+            if (formValues) {
+                Swal.fire({ title: 'Saving...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+                const putResponse = await fetch(`${API_URL}/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formValues)
+                });
+
+                if (putResponse.ok) {
+                    Swal.fire('Updated!', 'User details have been successfully saved.', 'success');
+                    fetchUsers(); 
+                } else {
+                    const errorData = await putResponse.json();
+                    Swal.fire('Error', errorData.message || 'Failed to update user.', 'error');
+                }
+            }
+        } catch (error) {
+            console.error("Edit Error:", error);
+            Swal.fire('Connection Error', 'Failed to communicate with the server.', 'error');
+        }
+    };
+
+    window.deleteUser = async function(userId) {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You are about to permanently delete this user!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545', 
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete them!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const token = localStorage.getItem('token');
+                
+                const response = await fetch(`${API_URL}/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    Swal.fire('Deleted!', 'The user has been removed from the database.', 'success');
+                    fetchUsers(); 
+                } else {
+                    throw new Error('Server rejected the delete request');
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire('Error!', 'Failed to delete user from the database.', 'error');
+            }
+        }
+    };
+
+    /**
+     * 5. Save Logic (Register/Update)
+     */
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const id = document.getElementById('userId').value;
+        const userData = {
+            username: document.getElementById('userName').value,
+            email: document.getElementById('userEmail').value,
+            role: document.getElementById('userRole').value,
+            branch: document.getElementById('userBranch').value
+        };
+
+        if (!id) {
+            const passwordValue = document.getElementById('userPassword').value;
+            if (!passwordValue) {
+                alert("Please set a password for the new staff member.");
+                return;
+            }
+            userData.password = passwordValue;
+        }
+
+        const url = id ? `${API_URL}/users/${id}` : `${API_URL}/register`;
+        const method = id ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            });
+
+            if (response.ok) {
+                userModal.hide();
+                fetchUsers(); 
+                alert(id ? "User details updated!" : "New staff registered successfully!");
+            } else {
+                const result = await response.json();
+                alert("Error: " + result.message);
+            }
+        } catch (err) {
+            alert("Connection error. Ensure the backend is running on port 3000.");
+        }
+    });
+
+    window.onload = fetchUsers;
+
+
+  
+// Keep mock alerts for now until you build an alerts table in the DB
+const mockAlerts = [
+    { id: 'A1', title: 'Low Stock Alert', desc: 'Beans 50kg is below 5 bags at Matugga branch.', icon: 'warning', color: 'text-warning' },
+    { id: 'A2', title: 'New Device Login', desc: 'Unrecognized IP address accessed the Admin panel.', icon: 'security', color: 'text-danger' }
+];
+
+// --- 1. FETCH REAL LOGS FROM DATABASE ---
+// --- 1. FETCH ALL ACTIVITY FROM DATABASE ---
+async function fetchActivityData() {
+    try {
+        const response = await fetch('http://localhost:3000/api/logs');
+        const systemActivity = await response.json();
+        
+        // Send the real database activity straight to the Alerts panel!
+        renderAlerts(systemActivity);
+        
+    } catch (error) {
+        console.error("Failed to fetch alerts:", error);
+        const container = document.getElementById('notificationsList');
+        if(container) container.innerHTML = '<p class="text-danger text-center mt-4">Failed to connect to the database.</p>';
+    }
+}
+
+// --- 2. RENDER ACTIVITY INTO THE RIGHT-SIDE PANEL ---
+function renderAlerts(activities) {
+    // Make sure this ID exactly matches the ID of the div in your HTML!
+    const container = document.getElementById('notificationsList'); 
+    if (!container) return; 
+    
+    if (!activities || activities.length === 0) {
+        container.innerHTML = `<div class="text-center text-muted p-5"><span class="material-symbols-outlined fs-1 mb-2">notifications_paused</span><p>No recent system activity.</p></div>`;
+        return;
+    }
+    
+    container.innerHTML = activities.map(activity => {
+        // Automatically choose the best icon and color based on the action
+        let icon = 'info';
+        let color = 'text-secondary';
+        const actionStr = activity.action.toLowerCase();
+        
+        if (actionStr.includes('login')) { 
+            icon = 'login'; color = 'text-success'; 
+        } else if (actionStr.includes('sale')) { 
+            icon = 'shopping_cart'; color = 'text-primary'; 
+        } else if (actionStr.includes('procure') || actionStr.includes('produce')) { 
+            icon = 'inventory_2'; color = 'text-info'; 
+        } else if (actionStr.includes('user') || actionStr.includes('staff')) {
+            icon = 'person_add'; color = 'text-warning';
+        }
+
+        // Format the time nicely
+        const timeString = new Date(activity.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        return `
+        <div class="p-3 bg-white border rounded shadow-sm d-flex gap-3 align-items-start transition mb-2" style="cursor: pointer;" onclick="viewLogDetails('${activity.action}', '${activity.user} (${activity.branch})', '${timeString}')">
+            <span class="material-symbols-outlined ${color} bg-light p-2 rounded-circle" style="font-size: 20px;">${icon}</span>
+            <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="mb-0 fw-bold text-dark" style="font-size: 14px;">${activity.action}</h6>
+                    <small class="text-muted" style="font-size: 11px;">${timeString}</small>
+                </div>
+                <p class="mb-1 text-muted" style="font-size: 13px; line-height: 1.4;">${activity.details || ''}</p>
+                <small class="fw-bold" style="color: #198754; font-size: 11px;">${activity.user} • ${activity.branch}</small>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+// Ensure data is fetched when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    fetchActivityData();
+});
+// --- 4. YOUR PROFESSIONAL POPUPS (Untouched!) ---
+function viewLogDetails(action, user, time) {
+    Swal.fire({
+        title: 'Audit Log Details',
+        html: `
+            <div class="text-start mt-3 bg-light p-3 rounded border">
+                <p class="mb-2"><span class="badge bg-secondary me-2">TIMESTAMP</span> ${time}</p>
+                <p class="mb-2"><span class="badge bg-secondary me-2">INITIATOR</span> <span class="fw-bold">${user}</span></p>
+                <p class="mb-0"><span class="badge bg-secondary me-2">ACTION</span> ${action}</p>
+            </div>
+        `,
+        icon: 'info',
+        confirmButtonColor: '#11d452',
+        customClass: { popup: 'custom-modal' }
+    });
+}
+
+function clearLogs() {
+    Swal.fire({
+        title: 'Clear System Logs?',
+        text: "Are you sure? This deletes historical data and cannot be undone.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#f8f9fa',
+        confirmButtonText: '<span class="material-symbols-outlined align-middle me-1" style="font-size: 18px;">delete_forever</span> Yes, Clear Logs',
+        customClass: { cancelButton: 'text-dark border fw-bold', confirmButton: 'fw-bold', popup: 'custom-modal' }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // NOTE: In the future, you should make a DELETE fetch request to the backend here!
+            document.getElementById('logsTableBody').innerHTML = '<tr><td colspan="3" class="text-center text-muted py-4">All system logs have been cleared.</td></tr>';
+            Swal.fire({ title: 'Cleared!', text: 'System logs have been deleted.', icon: 'success', confirmButtonColor: '#11d452', customClass: { popup: 'custom-modal' }});
+        }
+    });
+}
+
+function markAllRead() {
+    Swal.fire({
+        title: 'Clearing alerts...',
+        timer: 800,
+        didOpen: () => Swal.showLoading(),
+        showConfirmButton: false,
+        customClass: { popup: 'custom-modal' }
+    }).then(() => {
+        const container = document.getElementById('notificationsList');
+        if (container) {
+            container.innerHTML = `
+                <div class="text-center text-muted p-5 mt-3">
+                    <span class="material-symbols-outlined text-success mb-2" style="font-size: 40px;">check_circle</span>
+                    <h6 class="fw-bold text-dark">You're all caught up!</h6>
+                    <p class="small">No new system alerts.</p>
+                </div>
+            `;
+        }
+    });
+}
+
+// Make sure to actually call the fetch function when the page loads!
+document.addEventListener('DOMContentLoaded', () => {
+    fetchActivityData();
+});
+    
+
+
+async function fetchSystemLogs() {
+    try {
+        const response = await fetch('http://localhost:3000/api/logs');
+        const logs = await response.json();
+        
+        const container = document.getElementById('recentAlertsContainer');
+        container.innerHTML = ''; // Clear loading text
+        
+        if (logs.length === 0) {
+            container.innerHTML = '<p class="text-center text-muted mt-4">No recent activity.</p>';
+            return;
+        }
+
+        logs.forEach(log => {
+            // Format the date nicely
+            const dateStr = new Date(log.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            // Choose icons and colors based on what happened
+            let icon = "info";
+            let iconColor = "text-secondary";
+            let bgColor = "bg-light";
+            
+            if (log.action.includes("Login")) { 
+                icon = "login"; iconColor = "text-success"; bgColor = "bg-success-subtle"; 
+            } else if (log.action.includes("Sale")) { 
+                icon = "shopping_cart"; iconColor = "text-primary"; bgColor = "bg-primary-subtle"; 
+            } else if (log.action.includes("User") || log.action.includes("Staff")) { 
+                icon = "person_add"; iconColor = "text-warning"; bgColor = "bg-warning-subtle"; 
+            } else if (log.action.includes("Produce") || log.action.includes("Procurement")) {
+                icon = "local_shipping"; iconColor = "text-info"; bgColor = "bg-info-subtle";
+            }
+
+            // Create the alert card HTML
+            const alertHtml = `
+                <div class="d-flex align-items-start border-bottom pb-3 mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center p-2 me-3 ${bgColor}" style="width: 40px; height: 40px;">
+                        <span class="material-symbols-outlined ${iconColor}" style="font-size: 20px;">${icon}</span>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-dark" style="font-size: 0.95rem;">${log.action}</strong>
+                            <small class="text-muted" style="font-size: 0.75rem;">${dateStr}</small>
+                        </div>
+                        <p class="mb-1 text-muted" style="font-size: 0.85rem; line-height: 1.4;">${log.details}</p>
+                        <small class="fw-bold" style="color: #198754; font-size: 0.75rem;">${log.user} • ${log.branch}</small>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', alertHtml);
+        });
+        
+    } catch (error) {
+        console.error("Error loading logs:", error);
+        document.getElementById('recentAlertsContainer').innerHTML = 
+            '<p class="text-danger text-center mt-4">Failed to load alerts.</p>';
+    }
+}
+
+// Make sure it runs when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    fetchSystemLogs();
+});
+   // --- Mobile Sidebar Toggle Logic ---
+        function toggleSidebar() {
+            // Looks for either sidebar type
+            const sidebar = document.querySelector('.sidebar') || document.querySelector('.admin-sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            if (sidebar) sidebar.classList.toggle('show-mobile');
+            if (overlay) overlay.classList.toggle('active');
+        }
+
+        // Close sidebar automatically when a link is clicked on mobile
+        document.querySelectorAll('.nav-btn, .nav-item, .sidebar-nav-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.innerWidth < 992) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+
+
+        // --- LOAD SALES AGGREGATIONS FOR MR. ORBAN ---
+async function loadDashboardAggregates() {
+    try {
+        // 1. Fetch ALL sales from the database (no branch filter!)
+        const response = await fetch('http://localhost:3000/api/sales');
+        const result = await response.json();
+        
+        // Handle potential different response structures (e.g., if it's wrapped in {success: true, data: [...]})
+        const sales = result.data || result; 
+
+        if (!Array.isArray(sales)) {
+            console.error("Expected an array of sales, got:", sales);
+            return;
+        }
+
+        // 2. Initialize tracking variables
+        let maganjoRev = 0;
+        let maganjoVol = 0;
+        let matuggaRev = 0;
+        let matuggaVol = 0;
+
+        // 3. Loop through every sale and separate them by branch
+        sales.forEach(sale => {
+            const amount = Number(sale.amountPaid) || 0;
+            const weight = Number(sale.tonnage) || 0;
+            const branchName = (sale.branch || '').toLowerCase();
+
+            if (branchName.includes('maganjo')) {
+                maganjoRev += amount;
+                maganjoVol += weight;
+            } else if (branchName.includes('matugga')) {
+                matuggaRev += amount;
+                matuggaVol += weight;
+            }
+        });
+
+        // 4. Calculate the Grand Totals
+        const totalRev = maganjoRev + matuggaRev;
+        const totalVol = maganjoVol + matuggaVol;
+
+        // Helper functions to format numbers beautifully (e.g., 1,500,000)
+        const formatUGX = (num) => `UGX ${num.toLocaleString()}`;
+        const formatKG = (num) => `${num.toLocaleString()} kg`;
+
+        // 5. Inject the math right into your HTML IDs!
+        document.getElementById('total-revenue-all').textContent = formatUGX(totalRev);
+        document.getElementById('total-volume-all').textContent = formatKG(totalVol);
+        
+        document.getElementById('maganjo-total-rev').textContent = formatUGX(maganjoRev);
+        document.getElementById('maganjo-total-vol').textContent = formatKG(maganjoVol);
+
+        document.getElementById('matugga-total-rev').textContent = formatUGX(matuggaRev);
+        document.getElementById('matugga-total-vol').textContent = formatKG(matuggaVol);
+
+    } catch (error) {
+        console.error("Error loading dashboard aggregations:", error);
+        document.getElementById('total-revenue-all').textContent = "Error";
+    }
+}
+
+// Make sure it runs the exact moment the dashboard loads!
+document.addEventListener('DOMContentLoaded', () => {
+    loadDashboardAggregates();
+});
+</script>
+</body>
 </html>

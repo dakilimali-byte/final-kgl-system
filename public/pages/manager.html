@@ -1,0 +1,1593 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manager Dashboard - Karibu Groceries LTD</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+
+    <link rel="stylesheet" href="../css/director_dashboard.css" />
+    <!-- <link rel="stylesheet" href="../css/procurement.css" /> -->
+
+    <style>
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .logout-section { cursor: pointer; transition: 0.2s; }
+        .logout-section:hover { background-color: rgba(220,53,69,0.1); color: #dc3545; border-radius: 8px;}
+
+    /* ========================================== */
+      /* --- UNIFIED RESPONSIVE CSS FIX ---         */
+      /* ========================================== */
+      
+      /* 1. BASE RULES: Mobile Bar & Overlay (Hidden by default on desktop) */
+      .mobile-top-bar {
+        display: none; 
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        height: 65px;
+        background: #ffffff;
+        z-index: 9990;
+        border-bottom: 1px solid #e9ecef;
+        padding: 0 20px;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9980;
+        backdrop-filter: blur(2px);
+      }
+      .sidebar-overlay.active { display: block !important; }
+
+      /* 2. MOBILE-ONLY RULES (Triggers ONLY on screens smaller than 992px) */
+      @media (max-width: 991px) {
+        
+        /* Show the mobile bar, hide the bulky desktop header */
+        .mobile-top-bar { display: flex !important; }
+        .top-navbar { display: none !important; } 
+        
+        /* Adjust the main content to clear the new mobile top bar */
+        .main-layout, .content-wrapper {
+            display: block !important;
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+            width: 100% !important;
+            padding-top: 65px !important;
+        }
+
+        /* Physically hide the sidebar off-screen to the left */
+        .sidebar {
+            position: fixed !important; 
+            top: 0 !important; 
+            left: -320px !important; 
+            bottom: 0 !important;
+            width: 280px !important;
+            height: 100vh !important;
+            z-index: 9999 !important; 
+            background-color: #ffffff !important;
+            transition: left 0.3s ease-in-out !important;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.2) !important;
+        }
+        
+        /* The class Javascript adds to slide it back onto the screen */
+        aside.sidebar.show-mobile, aside.admin-sidebar.show-mobile { 
+            left: 0 !important; 
+            transform: translateX(0) !important;
+        }
+      }
+    </style>
+  </head>
+ <body> <div class="mobile-top-bar">
+      <button class="btn btn-light border-0 d-flex align-items-center p-2" onclick="toggleSidebar()">
+        <span class="material-symbols-outlined text-dark">menu</span>
+      </button>
+    </div>
+
+    <div class="sidebar-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-layout">
+      <header class="top-navbar">
+        <div class="navbar-content">
+          <div class="navbar-left">
+            <img src="../img/KGL_LOGO.png" alt="KGL Logo" class="header-logo" />
+            
+          </div>
+
+          <div class="navbar-right">
+           
+            <div class="navbar-divider"></div>
+            <div class="profile-section">
+              <div class="profile-info">
+                <p class="profile-name" id="navUserName">S. Namono</p>
+                <p class="profile-role">Branch Manager</p>
+              </div>
+              <div class="profile-avatar" id="navUserAvatar" style="background-color: #0d6efd; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                SN
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-wrapper">
+        <aside class="sidebar">
+          <div class="sidebar-content">
+            <div class="sidebar-header">
+              <h1 class="sidebar-title" id="branchNameTitle">Branch Portal</h1>
+              <p class="sidebar-subtitle">Manager Access</p>
+            </div>
+
+            <nav class="sidebar-nav">
+              <a href="#" class="nav-item active" id="nav-dashboard" onclick="switchView('dashboard')">
+                <span class="material-symbols-outlined">dashboard</span>
+                <p class="nav-text">Dashboard</p>
+              </a>
+              <a href="#" class="nav-item" id="nav-inventory" onclick="switchView('inventory')">
+                <span class="material-symbols-outlined">inventory_2</span>
+                <p class="nav-text">Branch Inventory</p>
+              </a>
+              <a href="#" class="nav-item" id="nav-procurement" onclick="switchView('procurement')">
+                <span class="material-symbols-outlined">local_shipping</span>
+                <p class="nav-text">Procurement</p>
+              </a>
+              <a href="#" class="nav-item" id="nav-reports" onclick="switchView('reports')">
+                <span class="material-symbols-outlined">bar_chart</span>
+                <p class="nav-text">Sales Reports</p>
+              </a>
+              <a href="#" class="nav-item" id="nav-credits" onclick="switchView('credits')">
+                <span class="material-symbols-outlined">credit_score</span>
+                <p class="nav-text">Credit Ledger</p>
+              </a>
+            </nav>
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="logout-section" onclick="handleLogout()">
+              <span class="material-symbols-outlined">logout</span>
+              <p class="logout-text">Logout</p>
+            </div>
+          </div>
+        </aside>
+        <main class="main-content">
+          
+          <div id="view-dashboard" class="view-section active">
+              <div class="content-container">
+                <div class="page-header">
+                  <div class="header-info">
+                    <div class="header-title-group">
+                      <h1 class="page-title">Branch Dashboard Overview</h1>
+                    </div>
+                    <p class="page-description">Real-time performance metrics for your assigned branch.</p>
+                  </div>
+                    <div class="header-actions">
+                      <button id="dateFilterBtn" class="action-btn secondary-btn" onclick="openDateFilter()">
+                        <span class="material-symbols-outlined">calendar_today</span> 
+                        <span id="dateFilterText">Today</span>
+                      </button>
+                      
+                      <button class="action-btn primary-btn" onclick="exportReport()">
+                        <span class="material-symbols-outlined">download</span> Export Report
+                      </button>
+                    </div>
+                </div>
+
+                          <div class="kpi-grid">
+                  <div class="kpi-card">
+                    <div class="kpi-header">
+                      <p class="kpi-label">Today's Sales (Units)</p>
+                      <span class="material-symbols-outlined kpi-icon">shopping_cart</span>
+                    </div>
+                    <p class="kpi-value" id="kpiTodaySales">0 kg</p>
+                    <div class="kpi-trend" id="kpiSalesTrendContainer">
+                      <span class="material-symbols-outlined trend-icon text-muted">remove</span>
+                      <p class="trend-value text-muted">Calculating...</p>
+                    </div>
+                  </div>
+
+                  <div class="kpi-card">
+                    <div class="kpi-header">
+                      <p class="kpi-label">Today's Revenue (UGX)</p>
+                      <span class="material-symbols-outlined kpi-icon">payments</span>
+                    </div>
+                    <p class="kpi-value" id="kpiTodayRevenue">0</p>
+                    <div class="kpi-trend" id="kpiRevenueTrendContainer">
+                      <span class="material-symbols-outlined trend-icon text-muted">remove</span>
+                      <p class="trend-value text-muted">Calculating...</p>
+                    </div>
+                  </div>
+                </div>
+
+                                <div class="charts-grid">
+                  <div class="chart-card">
+                    <div class="chart-header">
+                      <div class="chart-title-group">
+                        <h3 class="chart-title">Sales per Produce Type</h3>
+                        <p class="chart-subtitle">By Volume (kg) today</p>
+                      </div>
+                    </div>
+                    <div style="position: relative; height: 250px; width: 100%;">
+                        <canvas id="produceBarChart"></canvas>
+                    </div>
+                  </div>
+
+                  <div class="chart-card">
+                    <div class="chart-header">
+                      <div class="chart-title-group">
+                        <h3 class="chart-title">Sales Type Distribution</h3>
+                        <p class="chart-subtitle">Cash vs Credit</p>
+                      </div>
+                    </div>
+                    <div style="position: relative; height: 250px; width: 100%; display: flex; justify-content: center;">
+                        <canvas id="revenuePieChart"></canvas>
+                    </div>
+                  </div>
+</div>
+                <div class="table-card mt-4">
+                  <div class="table-header"><h3 class="table-title">Recent Transactions</h3><button class="view-all-btn">View All</button></div>
+                  <div class="table-responsive">
+                    <table class="performance-table">
+                      <thead class="table-head">
+                        <thead class="table-head">
+                          <tr>
+                            <th class="table-heading">Receipt No.</th>
+                            <th class="table-heading">Agent</th>
+                            <th class="table-heading">Items</th>
+                            <th class="table-heading">Total Amount</th>
+                            <th class="table-heading">Type</th>
+                          </tr>
+                        </thead>
+                      <tbody class="table-body" id="recentTransactionsBody">
+                        <tr><td colspan="5" class="table-cell text-center text-muted py-3">Loading transactions...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+       <div id="view-inventory" class="view-section">
+            <div class="content-container">
+              <div class="page-header-section d-flex justify-content-between align-items-center mb-4">
+                <div class="page-title-area">
+    <h1 class="page-main-heading fw-bold">Inventory Control</h1>
+    <p class="text-muted">
+        Overseeing stock levels and pricing for Maganjo and Matugga branches.
+    </p>
+</div>
+<div class="header-actions">
+   <button class="btn btn-outline-secondary me-2" onclick="exportInventoryPDF()">
+    <span class="material-symbols-outlined align-middle">download</span> Export PDF
+</button>
+    <button class="btn btn-primary" onclick="switchView('procurement')">
+        <span class="material-symbols-outlined align-middle">add</span> New Batch
+    </button>
+</div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100 p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <p class="text-muted mb-0 fw-bold">Total Tonnage</p>
+                <span class="material-symbols-outlined text-primary bg-light p-2 rounded">inventory_2</span>
+            </div>
+            <h3 id="totalTonnageDisplay" class="fw-bold mb-1">0 KG</h3>
+            <p class="text-success small mb-0"><span class="material-symbols-outlined align-middle" style="font-size: 16px;">sync</span> Live Database Sync</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100 p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <p class="text-muted mb-0 fw-bold">Low Stock Alerts</p>
+                <span class="material-symbols-outlined text-warning bg-light p-2 rounded">warning</span>
+            </div>
+            <h3 id="lowStockDisplay" class="fw-bold mb-1">0 Items</h3>
+            <p class="text-muted small mb-0">Under 500 KG</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm border-danger h-100 p-3 bg-danger bg-opacity-10">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <p class="text-danger mb-0 fw-bold">Out of Stock</p>
+                <span class="material-symbols-outlined text-danger">error</span>
+            </div>
+            <h3 id="outOfStockDisplay" class="fw-bold text-danger mb-1">0 Items</h3>
+            <p class="text-danger small mb-0 fw-bold">Immediate action required</p>
+        </div>
+    </div>
+</div>
+             <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                  <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm border-secondary border-opacity-25" style="width: auto; box-shadow: none;">
+                      <option>All Categories</option>
+                      <option>Cereals</option>
+                      <option>Legumes</option>
+                    </select>
+                  </div>
+                  <span class="text-muted small fw-medium">Inventory Records</span>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0" style="min-width: 900px;">
+                    <thead class="bg-light">
+                      <tr>
+                        <th class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">Produce & Type</th>
+                        <th class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">Branch & Date</th>
+                        <th class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">Supplier Info</th>
+                        <th class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">Tonnage & Status</th>
+                        <th class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">Cost (UGX)</th>
+                        <th class="text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">Selling (UGX)</th>
+                        <th class="text-center text-muted text-uppercase" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                    
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+         </div>
+    
+         <div id="view-procurement" class="view-section">
+            <div class="content-container">
+              
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h1 class="page-main-heading fw-bold">Produce Procurement Entry</h1>
+                  <p class="text-muted mb-0">Record new produce intake for Karibu Groceries LTD</p>
+                </div>
+              </div>
+
+              <div class="row g-4">
+                <div class="col-lg-8">
+                  
+                  <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
+                      <h5 class="fw-bold"><span class="material-symbols-outlined align-middle text-success me-2">potted_plant</span>Produce Details</h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label small fw-bold text-muted">Produce Name</label>
+                          <input type="text" id="procName" class="form-control" placeholder="e.g. Maize Grains" />
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label small fw-bold text-muted">Produce Type</label>
+                          <select id="procType" class="form-select">
+                            <option value="">Select category...</option>
+                            <option>Cereals</option>
+                            <option>Legumes</option>
+                          </select>
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label small fw-bold text-muted">Tonnage (KG)</label>
+                          <div class="input-group">
+                            <input type="number" id="procTonnage" class="form-control" placeholder="0.00" oninput="calculateTotal()" />
+                            <span class="input-group-text bg-light">KG</span>
+                          </div>
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label small fw-bold text-muted">Date & Time of Intake</label>
+                          <input type="datetime-local" id="procDate" class="form-control" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white border-bottom-0 pt-3 pb-0">
+                      <h5 class="fw-bold"><span class="material-symbols-outlined align-middle text-primary me-2">local_shipping</span>Sourcing Information</h5>
+                    </div>
+                    <div class="card-body">
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label small fw-bold text-muted">Dealer / Farmer Name</label>
+                          <input type="text" id="procDealer" class="form-control" placeholder="Full name" />
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label small fw-bold text-muted">Contact Number <span class="text-danger">*</span></label>
+                          <input type="tel" id="procContact" class="form-control border-danger" placeholder="+256 700 000000" />
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label small fw-bold text-muted">Source Type</label>
+                          <select id="procSourceType" class="form-select">
+                            <option>Direct Farm</option>
+                            <option>Middleman / Agent</option>
+                            <option>Partner Company</option>
+                          </select>
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label small fw-bold text-muted">Branch Destination</label>
+                          <select id="procBranch" class="form-select border-primary">
+                            <option>Maganjo</option>
+                            <option>Matugga</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="col-lg-4">
+                  
+                  <div class="card shadow-sm border-0 bg-light mb-4">
+                    <div class="card-body">
+                      <h5 class="fw-bold mb-3"><span class="material-symbols-outlined align-middle text-warning me-2">payments</span>Financials</h5>
+                      
+                      <label class="form-label small fw-bold text-muted">Unit Cost (UGX/KG)</label>
+                      <div class="input-group mb-4">
+                        <input type="number" id="procUnitCost" class="form-control" placeholder="e.g. 1200" oninput="calculateTotal()" />
+                        <span class="input-group-text bg-white">UGX</span>
+                      </div>
+
+                      <div class="p-3 bg-white rounded border border-primary border-opacity-50 mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <span class="small fw-bold text-muted">Estimated Total Cost</span>
+                          <span class="material-symbols-outlined fs-6 text-primary">info</span>
+                        </div>
+                        <h3 class="fw-bold text-primary mb-0" id="procTotalDisplay">UGX 0</h3>
+                      </div>
+
+                      <label class="form-label small fw-bold text-primary">Set Selling Price <span class="badge bg-danger ms-2">IMPORTANT</span></label>
+                      <div class="input-group">
+                        <input type="number" id="procSellingPrice" class="form-control border-primary" placeholder="e.g. 1500" />
+                        <span class="input-group-text bg-primary text-white border-primary">UGX/KG</span>
+                      </div>
+                      <div class="form-text small">Sets the wholesale price for retailers.</div>
+                    </div>
+                  </div>
+
+                  <div class="d-grid gap-2">
+                    <button class="btn btn-success btn-lg fw-bold d-flex justify-content-center align-items-center gap-2" onclick="submitProcurement()">
+                      <span class="material-symbols-outlined">check_circle</span> Submit Entry
+                    </button>
+                    <button class="btn btn-outline-danger d-flex justify-content-center align-items-center gap-2" onclick="clearProcurement()">
+                      <span class="material-symbols-outlined">cancel</span> Discard Changes
+                    </button>
+                  </div>
+
+                  <div class="text-center mt-4">
+                    <p class="text-muted small mb-0"><span class="status-indicator d-inline-block bg-success rounded-circle me-1" style="width: 8px; height: 8px;"></span> System connected & synced</p>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+       <div id="view-reports" class="view-section">
+            <div class="content-container">
+              
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h1 class="page-main-heading fw-bold">Sales & Revenue</h1>
+                  <p class="text-muted mb-0">Manage wholesale transactions and monitor branch revenue.</p>
+                </div>
+                <div>
+                  <button class="btn btn-outline-secondary me-2" onclick="printReport()">
+                    <span class="material-symbols-outlined align-middle fs-5">print</span> Print Report
+                  </button>
+                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newSaleModal">
+                    <span class="material-symbols-outlined align-middle fs-5">add_shopping_cart</span> Record Cash Sale
+                  </button>
+                </div>
+              </div>
+
+              <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                  <div class="card shadow-sm border-0 bg-primary text-white p-3 h-100">
+                    <p class="mb-1 text-white-50 fw-bold">Total Revenue (All Time)</p>
+                    <h3 class="fw-bold mb-0" id="mgrTotalRevenue">UGX 0</h3>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card shadow-sm border-0 bg-success text-white p-3 h-100">
+                    <p class="mb-1 text-white-50 fw-bold">Cash Payments Received</p>
+                    <h3 class="fw-bold mb-0" id="mgrCashPayments">UGX 0</h3>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="card shadow-sm border-0 bg-warning text-dark p-3 h-100">
+                    <p class="mb-1 text-dark-50 fw-bold">Credit Issued</p>
+                    <h3 class="fw-bold mb-0" id="mgrCreditIssued">UGX 0</h3>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                  <h5 class="fw-bold mb-0">Branch Transactions</h5>
+                  <div class="input-group" style="width: 250px;">
+                    <span class="input-group-text bg-light"><span class="material-symbols-outlined fs-6">search</span></span>
+                    <input type="text" class="form-control form-control-sm" placeholder="Search receipt or buyer..." />
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0" id="salesPrintTable" >
+                    <thead class="table-light">
+                      <tr>
+                        <th>Date</th>
+                        <th>Buyer Name</th>
+                        <th>Produce & Qty</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Recorded By</th> </tr>
+                    </thead>
+                    <tbody id="managerSalesTableBody">
+                      </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="modal fade" id="newSaleModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+              <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light border-bottom-0">
+                  <h5 class="modal-title fw-bold">Record Cash Sale</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                  <form id="cashSaleForm">
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label class="form-label small fw-bold text-muted">Buyer / Company Name *</label>
+                            <input type="text" id="saleBuyer" class="form-control" placeholder="Full name" required />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-muted">Select Produce *</label>
+                            <select class="form-select" id="saleProduce" onchange="calculateCashSale()" required>
+                                <option value="" data-price="0" selected disabled>Loading in-stock items...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Quantity (KG) *</label>
+                            <div class="input-group">
+                                <input type="number" id="saleQty" class="form-control" placeholder="0" oninput="calculateCashSale()" required />
+                                <span class="input-group-text">KG</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Total Amount (UGX) *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light text-muted">UGX</span>
+                                <input type="text" id="saleTotalDue" class="form-control bg-light fw-bold text-primary" value="0" readonly />
+                            </div>
+                        </div>
+                    </div>
+                  </form>
+                </div>
+                <div class="modal-footer border-top-0 bg-light">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-success fw-bold px-4" onclick="submitCashSale()">
+                    <span class="material-symbols-outlined align-middle fs-5 me-1">verified</span> Complete Cash Sale
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <div id="view-credits" class="view-section">
+            <div class="content-container">
+              
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <h1 class="page-main-heading fw-bold">Credit Sales Management</h1>
+                  <p class="text-muted mb-0">Track produce sold on credit, manage balances, and record payments.</p>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCreditSaleModal">
+                    <span class="material-symbols-outlined align-middle fs-5">add_circle</span> New Credit Sale
+                  </button>
+                </div>
+              </div>
+
+              <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
+                  <h5 class="fw-bold mb-0">Active Credit Ledger</h5>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Buyer Info</th>
+                        <th>Produce Details</th>
+                        <th>Amount (UGX)</th>
+                        <th>Due Date</th>
+                        <th>Recorded By</th> <th>Status</th>
+                        <th class="text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="managerCreditTableBody">
+                      </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+                    <div class="modal fade" id="paymentConfirmModal" tabindex="-1" aria-labelledby="paymentConfirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-success text-white">
+                  <h5 class="modal-title fw-bold" id="paymentConfirmModalLabel">
+                    <span class="material-symbols-outlined align-middle me-2">payments</span>
+                    Confirm Payment
+                  </h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                  <p class="fs-5 mb-1">Mark credit sale as fully paid for</p>
+                  <h4 class="fw-bold text-dark" id="modalBuyerName">Buyer Name</h4>
+                  <div class="mt-3 p-3 bg-light rounded">
+                      <span class="text-muted d-block mb-1">Amount to Clear:</span>
+                      <h3 class="fw-bold text-success mb-0" id="modalAmount">UGX 0</h3>
+                  </div>
+                  <input type="hidden" id="modalSaleId">
+                </div>
+                <div class="modal-footer bg-light">
+                  <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-success px-4" id="confirmPaymentBtn" onclick="processPayment()">
+                      <span class="material-symbols-outlined align-middle fs-6 me-1">check_circle</span> Confirm Payment
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="newCreditSaleModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+              <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light border-bottom-0">
+                  <h5 class="modal-title fw-bold">
+                    <span class="material-symbols-outlined align-middle me-2">edit_note</span>Quick Record New Credit Sale
+                  </h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                  <form id="creditSaleForm">
+                  <div class="row g-4">
+                    <div class="col-lg-4 border-end">
+                      <h6 class="fw-bold text-primary mb-3">Buyer Details</h6>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Buyer Name *</label>
+                        <input type="text" id="credBuyer" class="form-control" placeholder="e.g. John Doe" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">National ID (NIN) *</label>
+                        <input type="text" id="credNIN" class="form-control" placeholder="CM90..." required>
+                      </div>
+                      <div class="row g-2">
+                        <div class="col-6">
+                          <label class="form-label small fw-bold text-muted">Contact *</label>
+                          <input type="tel" id="credContact" class="form-control" placeholder="07..." required>
+                        </div>
+                        <div class="col-6">
+                          <label class="form-label small fw-bold text-muted">Location *</label>
+                          <input type="text" id="credLocation" class="form-control" placeholder="City/Town" required>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-4 border-end">
+                      <h6 class="fw-bold text-primary mb-3">Transaction Details</h6>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Produce Name *</label>
+                        <select class="form-select" id="credProduce" onchange="calculateCreditSale()" required>
+                          <option value="" data-price="0" selected disabled>Loading stock...</option>
+                        </select>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Tonnage (KG) *</label>
+                        <input type="number" id="credQty" class="form-control" placeholder="0" oninput="calculateCreditSale()" required>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Dispatch Date</label>
+                        <input type="date" id="credDate" class="form-control">
+                      </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                      <h6 class="fw-bold text-primary mb-3">Financials</h6>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Amount Due (UGX) *</label>
+                        <div class="input-group">
+                          <span class="input-group-text">UGX</span>
+                          <input type="text" id="credTotalDue" class="form-control border-danger fw-bold text-danger bg-light" value="0" readonly>
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Due Date *</label>
+                        <input type="date" id="credDueDate" class="form-control border-danger" required>
+                      </div>
+                    </div>
+                  </div>
+                  </form>
+                </div>
+                <div class="modal-footer border-top-0 bg-light">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="button" class="btn btn-primary fw-bold px-4" onclick="submitCreditSale()">
+                    <span class="material-symbols-outlined align-middle fs-5 me-1">save</span> Save Credit Sale
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+  let globalBranchSales = [];
+        // --- GLOBAL DATA (Connected to your login system) ---
+             // 1. Grab data from localStorage and handle case-sensitivity
+          const currentManager = {
+              id: localStorage.getItem('userId'), 
+              name: localStorage.getItem('username'), 
+              role: (localStorage.getItem('userRole') || '').toLowerCase(), // Forces "Manager" to become "manager"
+              branch: localStorage.getItem('userBranch') 
+          };
+
+          // 2. The bulletproof security check
+          if (!currentManager.branch || currentManager.role !== 'manager') {
+              alert("Unauthorized access. Please log in.");
+              // Clear bad data just in case
+              localStorage.clear(); 
+              window.location.href = 'login.html'; 
+          }
+        let branchInventory = [];
+
+        // --- 1. Load User Data ---
+        window.addEventListener('DOMContentLoaded', () => {
+
+
+            const username = currentManager.name;
+            const branch = currentManager.branch;
+            
+            // Safety checks added so missing IDs don't break the page
+            const navUserName = document.getElementById('navUserName');
+            if (navUserName) navUserName.innerText = username;
+            
+            const navUserAvatar = document.getElementById('navUserAvatar');
+            if (navUserAvatar) navUserAvatar.innerText = username.substring(0, 2).toUpperCase();
+            
+            const branchNameTitle = document.getElementById('branchNameTitle');
+            if (branchNameTitle) branchNameTitle.innerText = branch + ' Branch';
+
+            // Check URL for specific tab
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetTab = urlParams.get('tab');
+            
+            // FIX: If there's a tab in the URL, load it. Otherwise, force load the Dashboard!
+            if (targetTab && document.getElementById(`view-${targetTab}`)) {
+                switchView(targetTab);
+            } else {
+                switchView('dashboard'); 
+            }
+
+            // --- NEW: Fetch Initial Data for Sales & Modals ---
+            fetchBranchSales();
+            fetchInventory();
+            fetchBranchInventory();
+            populateProduceDropdowns();
+         
+        });
+
+        // --- 2. SPA Routing ---
+        function switchView(tabName) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            
+            const targetView = document.getElementById(`view-${tabName}`);
+            const targetNav = document.getElementById(`nav-${tabName}`);
+            
+            if (targetView) targetView.classList.add('active');
+            if (targetNav) targetNav.classList.add('active');
+            
+            window.history.pushState({}, '', `?tab=${tabName}`);
+        }
+
+       // --- 3. Dynamic Chart.js Initialization ---
+function updateCharts(sales) {
+    // A. Aggregate the Data
+    const today = new Date();
+    const isSameDay = (d1, d2) => d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear();
+
+    const produceVolumes = {};
+    let cashTotal = 0;
+    let creditTotal = 0;
+
+    sales.forEach(sale => {
+        const saleDate = new Date(sale.createdAt);
+
+        // Bar Chart Logic: Calculate volume per produce (Today only)
+        if (isSameDay(saleDate, today)) {
+            if (!produceVolumes[sale.produceName]) {
+                produceVolumes[sale.produceName] = 0;
+            }
+            produceVolumes[sale.produceName] += sale.tonnage;
+        }
+
+        // Pie Chart Logic: Calculate total Cash vs Credit revenue
+        if (sale.isCredit) {
+            creditTotal += sale.amountPaid;
+        } else {
+            cashTotal += sale.amountPaid;
+        }
+    });
+
+    // Prepare arrays for the Bar Chart
+    let produceLabels = Object.keys(produceVolumes);
+    let produceData = Object.values(produceVolumes);
+
+    // Fallback if there are no sales today
+    if (produceLabels.length === 0) {
+        produceLabels = ['No Sales Today'];
+        produceData = [0];
+    }
+
+    // B. Render the Bar Chart
+    const barCanvas = document.getElementById('produceBarChart');
+    if (barCanvas) {
+        // Destroy existing chart to prevent hover glitches
+        if (produceBarChartInstance) produceBarChartInstance.destroy(); 
+        
+        const barCtx = barCanvas.getContext('2d');
+        produceBarChartInstance = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: produceLabels, 
+                datasets: [{
+                    label: 'Volume Sold (kg)',
+                    data: produceData, 
+                    backgroundColor: '#0d6efd',
+                    borderRadius: 4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+        });
+    }
+
+    // C. Render the Pie Chart
+    const pieCanvas = document.getElementById('revenuePieChart');
+    if (pieCanvas) {
+        // Destroy existing chart to prevent hover glitches
+        if (revenuePieChartInstance) revenuePieChartInstance.destroy();
+
+        const pieCtx = pieCanvas.getContext('2d');
+        revenuePieChartInstance = new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Cash Sales', 'Credit Sales'],
+                datasets: [{ 
+                    data: [cashTotal, creditTotal], 
+                    backgroundColor: ['#0d6efd', '#ffc107'], 
+                    borderWidth: 0 
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+        });
+    }
+}
+
+        // --- 4. Professional Popups ---
+      function exportReport() {
+    Swal.fire({
+        title: 'Export Branch Report',
+        text: "Download a CSV file of the loaded performance data?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Download CSV',
+        confirmButtonColor: '#0d6efd',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            
+            if (!globalBranchSales || globalBranchSales.length === 0) {
+                Swal.fire('No Data', 'There is no data available to export.', 'info');
+                return;
+            }
+
+            // 1. Define CSV Headers
+            const headers = ['Date', 'Receipt No', 'Buyer/Agent', 'Produce', 'Quantity (kg)', 'Total Amount (UGX)', 'Type'];
+            
+            // 2. Map data to rows
+            const rows = globalBranchSales.map(sale => {
+                const date = new Date(sale.createdAt).toLocaleDateString();
+                const receiptNo = sale.receiptNumber || `#RCP-${sale._id ? sale._id.substring(0,6).toUpperCase() : '000'}`;
+                const agent = sale.agentName || sale.recordedBy || 'Unknown';
+                const type = sale.isCredit ? 'Credit' : 'Cash';
+                
+                // Wrap in quotes to prevent issues with commas in names
+                return `"${date}","${receiptNo}","${agent}","${sale.produceName}","${sale.tonnage}","${sale.amountPaid}","${type}"`;
+            });
+
+            // 3. Generate CSV content
+            const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+            
+            // 4. Trigger download
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Branch_Report_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // 5. Show Success Popup
+            Swal.fire('Exported!', 'Your CSV report has been downloaded successfully.', 'success');
+        }
+    });
+}
+
+function openDateFilter() {
+    Swal.fire({
+        title: 'Filter by Date',
+        html: `
+            <div class="mt-3">
+                <label class="form-label text-start w-100 fw-bold">Select Date:</label>
+                <input type="date" id="swal-filter-date" class="form-control" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            </div>
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Apply Filter',
+        confirmButtonColor: '#0d6efd',
+        cancelButtonColor: '#6c757d',
+        didOpen: () => {
+            // Default to today's date
+            document.getElementById('swal-filter-date').valueAsDate = new Date();
+        },
+        preConfirm: () => {
+            const dateStr = document.getElementById('swal-filter-date').value;
+            if (!dateStr) {
+                Swal.showValidationMessage('Please select a valid date');
+            }
+            return dateStr;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const selectedDate = result.value; 
+            
+            // 1. Format date for the button (e.g., "Mar 7, 2026")
+            const formattedDate = new Date(selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            
+            // 2. Update the button visually
+            const btnText = document.getElementById('dateFilterText');
+            const btn = document.getElementById('dateFilterBtn');
+            if (btnText && btn) {
+                btnText.innerText = formattedDate;
+                btn.classList.replace('secondary-btn', 'primary-btn'); // Change color to indicate active filter
+            }
+
+            // 3. Trigger dashboard updates with the new date
+            // Note: Your update functions must accept a second parameter for the date!
+            if (globalBranchSales.length > 0) {
+                updateDashboardKPIs(globalBranchSales, selectedDate);
+                updateCharts(globalBranchSales, selectedDate);
+            }
+
+            // 4. Show success toast
+            Swal.fire({
+                title: 'Filtered!',
+                text: `Showing data for ${formattedDate}`,
+                icon: 'success',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+    });
+}
+
+        function handleLogout() {
+            Swal.fire({
+                title: 'Sign Out?',
+                text: "Are you sure you want to exit the Manager Portal?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Sign Out',
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+
+
+        
+
+        // --- 6. Inventory Logic & Popups ---
+        async function exportInventoryPDF() {
+            try {
+                Swal.fire({ title: 'Generating Report...', text: 'Gathering inventory data', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+                const response = await fetch('http://localhost:3000/api/inventory/stock');
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
+
+                    doc.setFontSize(18); doc.setTextColor(40, 40, 40); doc.text("Karibu Groceries LTD", 14, 20);
+                    doc.setFontSize(12); doc.setTextColor(100, 100, 100); doc.text("Official Branch Inventory Report", 14, 28);
+                    doc.setFontSize(10); doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 34);
+
+                    const tableColumns = ["Produce Name", "Category", "Branch", "Tonnage (KG)", "Selling Price (UGX)"];
+                    const tableRows = [];
+
+                    result.data.forEach(item => {
+                        tableRows.push([item.produceName, item.produceType, item.branch, item.currentTonnage.toLocaleString(), item.sellingPrice.toLocaleString()]);
+                    });
+
+                    doc.autoTable({ head: [tableColumns], body: tableRows, startY: 40, theme: 'striped', headStyles: { fillColor: [13, 110, 253] }, styles: { fontSize: 10, cellPadding: 3 } });
+                    doc.save('KGL_Inventory_Report.pdf');
+
+                    Swal.fire({ icon: 'success', title: 'Downloaded!', text: 'Your inventory report has been generated successfully.', timer: 2000, showConfirmButton: false });
+                } else {
+                    Swal.fire('Error', 'Could not fetch data for the report.', 'error');
+                }
+            } catch (error) {
+                console.error('PDF Generation Error:', error);
+                Swal.fire('Error', 'Something went wrong while generating the PDF.', 'error');
+            }
+        }
+
+        function setPrice(itemId, produceName, currentPrice) {
+            Swal.fire({
+                title: `Set Price: ${produceName}`, input: 'number', inputLabel: 'New Selling Price (UGX/KG)', inputValue: currentPrice, showCancelButton: true, confirmButtonText: 'Update Price', confirmButtonColor: '#0d6efd', cancelButtonColor: '#6c757d',
+                inputValidator: (value) => { if (!value || value <= 0) return 'Please enter a valid price!'; }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const newPrice = result.value;
+                    try {
+                        Swal.fire({ title: 'Updating Database...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+                        const response = await fetch(`http://localhost:3000/api/inventory/update-price/${itemId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ newPrice: newPrice }) });
+                        const data = await response.json();
+                        if (response.ok && data.success) {
+                            Swal.fire({ title: 'Price Updated!', text: `${produceName} is now set to UGX ${newPrice}/KG.`, icon: 'success', confirmButtonColor: '#198754' }).then(() => { fetchInventory(); });
+                        } else {
+                            Swal.fire('Error', data.error || 'Failed to update price', 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error updating price:', error); Swal.fire('Error', 'Could not connect to the server.', 'error');
+                    }
+                }
+            });
+        }
+
+        // --- 7. Procurement Logic ---
+        function calculateTotal() {
+            const tonnage = parseFloat(document.getElementById('procTonnage').value) || 0;
+            const unitCost = parseFloat(document.getElementById('procUnitCost').value) || 0;
+            const display = document.getElementById('procTotalDisplay');
+            if (display) display.innerText = 'UGX ' + (tonnage * unitCost).toLocaleString();
+        }
+
+        async function submitProcurement() {
+            const name = document.getElementById('procName').value.trim();
+            const type = document.getElementById('procType').value;
+            const tonnage = document.getElementById('procTonnage').value;
+            const dateStr = document.getElementById('procDate').value;
+            const dealer = document.getElementById('procDealer').value.trim();
+            const contact = document.getElementById('procContact').value.trim();
+            const sourceType = document.getElementById('procSourceType').value;
+            const branch = document.getElementById('procBranch').value;
+            const cost = document.getElementById('procUnitCost').value;
+            const sellPrice = document.getElementById('procSellingPrice').value;
+
+            if (!name || !type || !tonnage || !cost || !sellPrice || !dealer || !contact) {
+                Swal.fire({ icon: 'error', title: 'Missing Fields', text: 'Please fill in all required produce, sourcing, and pricing details.' });
+                return;
+            }
+
+            const procurementData = { produceName: name, produceType: type, tonnage: Number(tonnage), cost: Number(cost), dealerName: dealer, contact: contact, sourceType: sourceType, branch: branch, sellingPrice: Number(sellPrice), dateOfIntake: dateStr ? new Date(dateStr).toISOString() : undefined };
+
+            try {
+                Swal.fire({ title: 'Saving...', text: 'Recording procurement in the database', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+                const response = await fetch('http://localhost:3000/api/inventory/procure', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(procurementData) });
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    Swal.fire({ icon: 'success', title: 'Procurement Saved!', text: `${tonnage}kg of ${name} added to inventory.`, confirmButtonColor: '#198754' }).then(() => {
+                        document.getElementById('procName').value = ''; // Quick clear
+                        switchView('inventory');
+                        fetchInventory();
+                        fetchBranchInventory(); // Update dropdowns too
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Validation Failed', text: result.error || 'Failed to save procurement.' });
+                }
+            } catch (error) {
+                console.error('Error submitting procurement:', error); Swal.fire({ icon: 'error', title: 'Server Error', text: 'Could not connect to the backend server. Is it running?' });
+            }
+        }
+
+        async function fetchInventory() {
+            try {
+                const response = await fetch(`http://localhost:3000/api/inventory/stock?branch=${currentManager.branch}`);
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    const tbody = document.getElementById('inventoryTableBody');
+                    if (!tbody) return;
+                    tbody.innerHTML = ''; 
+
+                    let totalTonnage = 0, lowStockCount = 0, outOfStockCount = 0;
+
+                    result.data.forEach(item => {
+                        totalTonnage += item.currentTonnage;
+                        if (item.currentTonnage === 0) outOfStockCount++; 
+                        else if (item.currentTonnage > 0 && item.currentTonnage < 500) lowStockCount++;
+                    });
+
+                    if(document.getElementById('totalTonnageDisplay')) document.getElementById('totalTonnageDisplay').innerText = totalTonnage.toLocaleString() + ' KG';
+                    if(document.getElementById('lowStockDisplay')) document.getElementById('lowStockDisplay').innerText = String(lowStockCount).padStart(2, '0') + ' Items';
+                    if(document.getElementById('outOfStockDisplay')) document.getElementById('outOfStockDisplay').innerText = String(outOfStockCount).padStart(2, '0') + ' Items';
+
+                    if (result.data.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">No inventory records found.</td></tr>`;
+                        return;
+                    }
+
+                   result.data.forEach(item => {
+                        const dateUpdated = item.updatedAt 
+                            ? new Date(item.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) 
+                            : 'Unknown Date';
+                        const supplierName = item.supplierName || 'Unknown Supplier';
+                        const supplierContact = item.supplierContact || 'No Contact';
+
+                        
+                        let stockStatus = 'Out of Stock';
+                        let badgeColor = 'bg-danger'; // Red by default for 0
+
+                        if (item.currentTonnage >= 500) {
+                            stockStatus = 'In Stock';
+                            badgeColor = 'bg-success'; // Green for 500 or more
+                        } else if (item.currentTonnage > 0 && item.currentTonnage < 500) {
+                            stockStatus = 'Low Stock';
+                            badgeColor = 'bg-warning text-dark'; // Yellow for 1 to 499
+                        }
+
+                        tbody.insertAdjacentHTML('beforeend', `
+                            <tr>
+                                <td><div class="fw-bold text-dark fs-6">${item.produceName}</div><span class="badge bg-light text-secondary border mt-1">${item.produceType}</span></td>
+                                <td><div class="fw-semibold text-primary">${item.branch}</div><small class="text-muted d-block mt-1">${dateUpdated}</small></td>
+                                <td><div class="fw-semibold text-dark">${supplierName}</div><span class="badge bg-info bg-opacity-10 text-info border border-info mt-1" style="font-size: 0.65rem;">${supplierContact}</span></td>
+                                
+                                <td><div class="fw-bold fs-6">${item.currentTonnage.toLocaleString()} KG</div><span class="badge ${badgeColor} mt-1">${stockStatus}</span></td>
+                                
+                                <td class="text-muted fw-medium fs-6">${item.cost ? item.cost.toLocaleString() : '-'}</td>
+                                <td class="text-success fw-bold fs-6">${item.sellingPrice.toLocaleString()}</td>
+                                <td class="text-center"><button class="btn btn-sm btn-outline-primary fw-medium" style="border-radius: 6px;" onclick="setPrice('${item._id}', '${item.produceName}', ${item.sellingPrice})">Update Price</button></td>
+                            </tr>
+                        `);
+                    });
+                }
+            } catch (error) { console.error('FETCH ERROR:', error); }
+        }
+
+        // =========================================================================
+        // --- 8. NEW SALES & REVENUE LOGIC (INTEGRATED WITH BACKEND) ---
+        // =========================================================================
+        
+        // Fetch specific branch stock for the dropdowns in the Sales Modals
+        async function fetchBranchInventory() {
+            try {
+                const res = await fetch(`http://localhost:3000/api/inventory/stock?branch=${currentManager.branch}`);
+                const result = await res.json();
+                
+                if(result.success) {
+                    branchInventory = result.data;
+                    const cashSelect = document.getElementById('saleProduce');
+                    const creditSelect = document.getElementById('credProduce');
+                    let optionsHTML = '<option value="" data-price="0" selected disabled>Select available stock...</option>';
+                    
+                    branchInventory.forEach(item => {
+                        if(item.currentTonnage > 0) {
+                            optionsHTML += `<option value="${item.produceName}" data-type="${item.produceType}" data-price="${item.sellingPrice}">
+                                ${item.produceName} (Available: ${item.currentTonnage.toLocaleString()} KG @ UGX ${item.sellingPrice})
+                            </option>`;
+                        }
+                    });
+
+                    if(cashSelect) cashSelect.innerHTML = optionsHTML;
+                    if(creditSelect) creditSelect.innerHTML = optionsHTML;
+                }
+            } catch (error) { console.error("Error fetching inventory for modals:", error); }
+        }
+
+        // Fetch sales history and build the tables dynamically
+     async function fetchBranchSales() {
+    try {
+        const res = await fetch(`http://localhost:3000/api/sales?branch=${currentManager.branch}`);
+        const result = await res.json();
+        
+        if(result.success) {
+            renderSalesTables(result.data);
+            updateDashboardKPIs(result.data); 
+            updateCharts(result.data);
+            updateRecentTransactions(result.data);
+            globalBranchSales = result.data;
+        }
+    } catch (error) { 
+        console.error("Error fetching branch sales:", error); 
+    }
+}
+
+        function renderSalesTables(sales) {
+            const salesTbody = document.getElementById('managerSalesTableBody');
+            const creditTbody = document.getElementById('managerCreditTableBody');
+            if(!salesTbody || !creditTbody) return;
+            
+            salesTbody.innerHTML = ''; creditTbody.innerHTML = '';
+            let totalRev = 0, cashRev = 0, creditRev = 0;
+
+            sales.forEach(sale => {
+                const dateStr = new Date(sale.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                const amountFormatted = sale.amountPaid.toLocaleString();
+                const recorderLabel = sale.recordedByRole === 'manager' ? `<span class="text-primary fw-bold">Mgr: ${sale.salesAgentName}</span>` : `<span class="text-secondary">Agt: ${sale.salesAgentName}</span>`;
+                totalRev += sale.amountPaid;
+
+                if (sale.isCredit) {
+                    creditRev += sale.amountPaid;
+                    const dueDateStr = new Date(sale.dueDate).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    
+                    salesTbody.innerHTML += `<tr><td>${dateStr}</td><td class="fw-bold">${sale.buyerName}</td><td>${sale.produceName} (${sale.tonnage} KG)</td><td class="fw-bold">UGX ${amountFormatted}</td><td><span class="badge bg-warning text-dark">Credit</span></td><td>${recorderLabel}</td></tr>`;
+                    
+                    creditTbody.innerHTML += `<tr><td><div class="fw-bold">${sale.buyerName}</div><div class="text-muted small">NIN: ${sale.nationalId} | ${sale.location}</div></td><td><div>${sale.produceName}</div><div class="text-muted small">${sale.tonnage} kg @ ${dateStr}</div></td><td class="text-danger fw-bold">${amountFormatted}</td><td><span class="text-danger fw-bold">${dueDateStr}</span></td><td>${recorderLabel}</td><td><span class="badge bg-danger">Pending</span></td><td class="text-center"><button class="btn btn-sm btn-outline-success" onclick="markPaid('${sale._id}', '${sale.buyerName}', ${sale.amountPaid})"><span class="material-symbols-outlined fs-6 align-middle">check_circle</span> Paid</button></td></tr>`;
+                } else {
+                    cashRev += sale.amountPaid;
+                    salesTbody.innerHTML += `<tr><td>${dateStr}</td><td class="fw-bold">${sale.buyerName}</td><td>${sale.produceName} (${sale.tonnage} KG)</td><td class="fw-bold text-success">UGX ${amountFormatted}</td><td><span class="badge bg-success">Paid in Full</span></td><td>${recorderLabel}</td></tr>`;
+                }
+            });
+
+            if(document.getElementById('mgrTotalRevenue')) document.getElementById('mgrTotalRevenue').innerText = 'UGX ' + totalRev.toLocaleString();
+            if(document.getElementById('mgrCashPayments')) document.getElementById('mgrCashPayments').innerText = 'UGX ' + cashRev.toLocaleString();
+            if(document.getElementById('mgrCreditIssued')) document.getElementById('mgrCreditIssued').innerText = 'UGX ' + creditRev.toLocaleString();
+        }
+
+        function calculateCashSale() {
+            const select = document.getElementById('saleProduce');
+            const price = parseFloat(select.options[select.selectedIndex]?.getAttribute('data-price')) || 0;
+            const qty = parseFloat(document.getElementById('saleQty').value) || 0;
+            document.getElementById('saleTotalDue').value = (price * qty).toLocaleString();
+        }
+
+        function calculateCreditSale() {
+            const select = document.getElementById('credProduce');
+            const price = parseFloat(select.options[select.selectedIndex]?.getAttribute('data-price')) || 0;
+            const qty = parseFloat(document.getElementById('credQty').value) || 0;
+            document.getElementById('credTotalDue').value = (price * qty).toLocaleString();
+        }
+
+        async function postSaleToBackend(payload, modalId, formId) {
+            try {
+                Swal.fire({ title: 'Processing Sale...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                const response = await fetch('http://localhost:3000/api/sales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    Swal.fire('Success!', 'Transaction recorded successfully.', 'success').then(() => {
+                        const modalInstance = bootstrap.Modal.getInstance(document.getElementById(modalId));
+                        if(modalInstance) modalInstance.hide();
+                        document.getElementById(formId).reset();
+                        if(document.getElementById('saleTotalDue')) document.getElementById('saleTotalDue').value = '0';
+                        if(document.getElementById('credTotalDue')) document.getElementById('credTotalDue').value = '0';
+                        
+                        fetchBranchInventory(); fetchBranchSales(); fetchInventory();
+                    });
+                } else { Swal.fire('Error', data.error || 'Failed to record sale.', 'error'); }
+            } catch (error) { Swal.fire('Error', 'Server connection failed.', 'error'); }
+        }
+
+       function submitCashSale() {
+    if(!document.getElementById('cashSaleForm').checkValidity()) { 
+        document.getElementById('cashSaleForm').reportValidity(); 
+        return; 
+    }
+    const select = document.getElementById('saleProduce');
+    
+    const payload = {
+        produceName: document.getElementById('saleProduce').value,
+        produceType: select.options[select.selectedIndex].getAttribute('data-type'),
+        tonnage: Number(document.getElementById('saleQty').value),
+        amountPaid: Number(document.getElementById('saleTotalDue').value.replace(/,/g, '')),
+        buyerName: document.getElementById('saleBuyer').value,
+        
+        
+        salesAgentName: currentManager.name, 
+        recordedBy: currentManager.name, 
+        
+        branch: currentManager.branch,
+        recordedById: currentManager.id,
+        recordedByRole: currentManager.role,
+        isCredit: false
+    };
+    postSaleToBackend(payload, 'newSaleModal', 'cashSaleForm');
+}
+
+      function submitCreditSale() {
+    if(!document.getElementById('creditSaleForm').checkValidity()) { 
+        document.getElementById('creditSaleForm').reportValidity(); 
+        return; 
+    }
+    const select = document.getElementById('credProduce');
+
+    const payload = {
+        produceName: document.getElementById('credProduce').value,
+        produceType: select.options[select.selectedIndex].getAttribute('data-type'),
+        tonnage: Number(document.getElementById('credQty').value),
+        amountPaid: Number(document.getElementById('credTotalDue').value.replace(/,/g, '')),
+        buyerName: document.getElementById('credBuyer').value,
+        nationalId: document.getElementById('credNIN').value,
+        contact: document.getElementById('credContact').value,
+        location: document.getElementById('credLocation').value,
+        dueDate: document.getElementById('credDueDate').value,
+        dateOfDispatch: document.getElementById('credDate').value || new Date().toISOString(),
+        
+       
+        salesAgentName: currentManager.name, 
+        recordedBy: currentManager.name, 
+        
+        branch: currentManager.branch,
+        recordedById: currentManager.id,
+        recordedByRole: currentManager.role,
+        isCredit: true
+    };
+    postSaleToBackend(payload, 'newCreditSaleModal', 'creditSaleForm');
+}
+        // 1. This opens the beautiful Bootstrap modal
+function markPaid(saleId, buyerName, amountPaid) {
+    // Fill the modal with the specific buyer's details
+    document.getElementById('modalBuyerName').innerText = buyerName;
+    document.getElementById('modalAmount').innerText = 'UGX ' + amountPaid.toLocaleString();
+    document.getElementById('modalSaleId').value = saleId;
+
+    // Trigger the Bootstrap Modal
+    const paymentModal = new bootstrap.Modal(document.getElementById('paymentConfirmModal'));
+    paymentModal.show();
+}
+
+// 2. This runs when they click the green 'Confirm Payment' button inside the modal
+async function processPayment() {
+    const saleId = document.getElementById('modalSaleId').value;
+    const btn = document.getElementById('confirmPaymentBtn');
+    
+    // Change button to show loading state
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner-border spinner-border-sm align-middle me-1"></span> Processing...`;
+    btn.disabled = true;
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/sales/pay/${saleId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            // Hide the modal beautifully
+            const modalElement = document.getElementById('paymentConfirmModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            modalInstance.hide();
+            
+            // Refresh the tables to remove the pending credit
+            fetchBranchSales(); 
+        } else {
+            alert("Backend Error: " + (result.message || "Could not update payment"));
+        }
+    } catch (error) {
+        console.error("Payment error:", error);
+        alert("Network error occurred. Is your server running?");
+    } finally {
+        // Restore button state
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+}
+
+        async function populateProduceDropdowns() {
+    try {
+        const res = await fetch(`http://localhost:3000/api/inventory/stock?branch=${currentManager.branch}`);
+        const result = await res.json();
+        
+        if (result.success) {
+            let optionsHTML = '<option value="" disabled selected>Select Produce...</option>';
+            
+            result.data.forEach(item => {
+                if (item.currentTonnage > 0) {
+                    // FIX ADDED HERE: Added data-type="${item.produceType || item.type}"
+                    optionsHTML += `<option value="${item.produceName}" data-price="${item.sellingPrice}" data-type="${item.produceType || item.type || 'Cereal'}">
+                        ${item.produceName} (${item.currentTonnage} KG available)
+                    </option>`;
+                }
+            });
+
+            const cashDropdown = document.getElementById('saleProduce');
+            const creditDropdown = document.getElementById('credProduce');
+            
+            if (cashDropdown) cashDropdown.innerHTML = optionsHTML;
+            if (creditDropdown) creditDropdown.innerHTML = optionsHTML;
+        }
+    } catch (error) {
+        console.error("Error loading produce dropdowns:", error);
+        const errorHTML = '<option value="" disabled selected>Error loading stock</option>';
+        if (document.getElementById('saleProduce')) document.getElementById('saleProduce').innerHTML = errorHTML;
+        if (document.getElementById('credProduce')) document.getElementById('credProduce').innerHTML = errorHTML;
+    }
+}
+function updateDashboardKPIs(sales) {
+    // 1. Setup Today and Yesterday dates
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    // Helper to check if two dates are the same calendar day
+    const isSameDay = (d1, d2) => {
+        return d1.getDate() === d2.getDate() && 
+               d1.getMonth() === d2.getMonth() && 
+               d1.getFullYear() === d2.getFullYear();
+    };
+
+    let todayTonnage = 0, todayRevenue = 0;
+    let yesterdayTonnage = 0, yesterdayRevenue = 0;
+
+    // 2. Loop through all sales and sort them into Today or Yesterday
+    sales.forEach(sale => {
+        const saleDate = new Date(sale.createdAt);
+        
+        if (isSameDay(saleDate, today)) {
+            todayTonnage += sale.tonnage;
+            todayRevenue += sale.amountPaid;
+        } else if (isSameDay(saleDate, yesterday)) {
+            yesterdayTonnage += sale.tonnage;
+            yesterdayRevenue += sale.amountPaid;
+        }
+    });
+
+    // 3. Calculate percentage trends
+    const calcTrend = (todayVal, yesterdayVal) => {
+        if (yesterdayVal === 0) return todayVal > 0 ? 100 : 0; 
+        return (((todayVal - yesterdayVal) / yesterdayVal) * 100).toFixed(1);
+    };
+
+    const tonnageTrend = calcTrend(todayTonnage, yesterdayTonnage);
+    const revenueTrend = calcTrend(todayRevenue, yesterdayRevenue);
+
+    // 4. Helper to format the trend HTML (Up Green vs Down Red)
+    const formatTrendHTML = (trendValue) => {
+        const isPositive = trendValue >= 0;
+        const icon = isPositive ? 'trending_up' : 'trending_down';
+        const colorClass = isPositive ? 'text-success positive' : 'text-danger negative';
+        const sign = isPositive && trendValue > 0 ? '+' : '';
+        
+        return `
+            <span class="material-symbols-outlined trend-icon ${colorClass}">${icon}</span>
+            <p class="trend-value ${colorClass}">${sign}${trendValue}%</p>
+            <p class="trend-label">vs yesterday</p>
+        `;
+    };
+
+    // 5. Update the HTML on the page safely
+    if (document.getElementById('kpiTodaySales')) {
+        document.getElementById('kpiTodaySales').innerText = todayTonnage.toLocaleString() + ' kg';
+    }
+    if (document.getElementById('kpiTodayRevenue')) {
+        document.getElementById('kpiTodayRevenue').innerText = todayRevenue.toLocaleString();
+    }
+    if (document.getElementById('kpiSalesTrendContainer')) {
+        document.getElementById('kpiSalesTrendContainer').innerHTML = formatTrendHTML(tonnageTrend);
+    }
+    if (document.getElementById('kpiRevenueTrendContainer')) {
+        document.getElementById('kpiRevenueTrendContainer').innerHTML = formatTrendHTML(revenueTrend);
+    }
+}
+
+// --- 4. Dynamic Recent Transactions Table ---
+function updateRecentTransactions(sales) {
+    const tbody = document.getElementById('recentTransactionsBody');
+    if (!tbody) return;
+
+    // 1. Sort sales by date (Newest first)
+    const sortedSales = [...sales].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // 2. Grab only the 5 most recent transactions
+    const recentSales = sortedSales.slice(0, 5);
+
+    // 3. Clear the "Loading..." text
+    tbody.innerHTML = '';
+
+    // 4. Handle empty state if no sales exist at all
+    if (recentSales.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="table-cell text-center py-3">No recent transactions found.</td></tr>';
+        return;
+    }
+
+    // 5. Loop through the top 5 and build the HTML rows
+    recentSales.forEach(sale => {
+        // Fallback for receipt number if your DB doesn't generate one yet (uses part of the DB ID)
+        const receiptNo = sale.receiptNumber || `#RCP-${sale._id ? sale._id.substring(0, 6).toUpperCase() : '000'}`; 
+        
+        // Match the data keys you use in your DB (adjust if yours are named slightly differently)
+        const agentName = sale.recordedBy || sale.salesAgentName || 'Unknown Agent'; 
+        const itemsText = `${sale.produceName} (${sale.tonnage}kg)`;
+        const totalAmountText = `UGX ${sale.amountPaid.toLocaleString()}`;
+        
+        // Set the badge color based on Cash vs Credit
+        const typeText = sale.isCredit ? 'Credit' : 'Cash';
+        const typeClass = sale.isCredit ? 'review-status' : 'optimal-status'; // Matches your existing CSS
+
+        // Create the row
+        const tr = document.createElement('tr');
+        tr.className = 'table-row';
+        tr.innerHTML = `
+            <td class="table-cell fw-bold">${receiptNo}</td>
+            <td class="table-cell">${agentName}</td>
+            <td class="table-cell">${itemsText}</td>
+            <td class="table-cell revenue-cell">${totalAmountText}</td>
+            <td class="table-cell"><span class="status-badge ${typeClass}">${typeText}</span></td>
+        `;
+        
+        tbody.appendChild(tr);
+    });
+}
+
+
+        // --- Bulletproof Mobile Sidebar Toggle ---
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar') || document.querySelector('.admin-sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            if (overlay) overlay.classList.toggle('active');
+            if (sidebar) {
+                if (overlay.classList.contains('active')) {
+                    sidebar.style.setProperty('left', '0px', 'important'); sidebar.style.setProperty('z-index', '99999', 'important'); 
+                } else {
+                    sidebar.style.setProperty('left', '-320px', 'important');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.nav-item, .sidebar-nav-item, .nav-btn').forEach(btn => {
+                btn.addEventListener('click', () => { if (window.innerWidth < 992) toggleSidebar(); });
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            const sidebar = document.querySelector('.sidebar') || document.querySelector('.admin-sidebar');
+            if (window.innerWidth >= 992 && sidebar) {
+                sidebar.style.removeProperty('left'); 
+                const overlay = document.getElementById('mobileOverlay');
+                if (overlay) overlay.classList.remove('active');
+            }
+        });
+
+let produceBarChartInstance = null;
+let revenuePieChartInstance = null;
+</script> 
+</body>
+</html>

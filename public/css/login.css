@@ -49,7 +49,6 @@ body {
     object-fit: contain;
 }
 
-
 body::before {
     content: '';
     position: fixed;
@@ -72,9 +71,11 @@ main {
 .card {
     border-radius: 0.75rem;
     overflow: hidden;
+    background-color: var(--card-bg);
 }
 
 .card-header {
+    background-color: #ffffff;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -207,60 +208,6 @@ a.text-muted:hover {
     background-color: var(--primary-color);
 }
 
-/* Dark Mode Support */
-[data-bs-theme="dark"] body {
-    background-color: var(--background-dark);
-}
-
-[data-bs-theme="dark"] body::before {
-    background-color: rgba(16, 34, 22, 0.95);
-}
-
-[data-bs-theme="dark"] .card {
-    background-color: var(--card-bg-dark);
-    color: #ffffff;
-}
-
-[data-bs-theme="dark"] .card-header {
-    background-color: var(--card-bg-dark);
-    border-bottom-color: rgba(255, 255, 255, 0.05);
-}
-
-[data-bs-theme="dark"] .card-footer {
-    background-color: rgba(0, 0, 0, 0.1);
-    border-top-color: rgba(255, 255, 255, 0.05);
-}
-
-[data-bs-theme="dark"] .text-deep-green {
-    color: #ffffff;
-}
-
-[data-bs-theme="dark"] .form-control-custom,
-[data-bs-theme="dark"] .form-select {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-}
-
-[data-bs-theme="dark"] .form-control-custom:focus,
-[data-bs-theme="dark"] .form-select:focus {
-    background-color: rgba(0, 0, 0, 0.3);
-    border-color: var(--primary-color);
-    color: #ffffff;
-}
-
-[data-bs-theme="dark"] .form-control-custom::placeholder {
-    color: rgba(255, 255, 255, 0.4);
-}
-
-[data-bs-theme="dark"] .form-label {
-    color: #d1d5db;
-}
-
-[data-bs-theme="dark"] h1 {
-    color: #ffffff;
-}
-
 /* Responsive Adjustments */
 @media (max-width: 576px) {
     .card {
@@ -288,4 +235,59 @@ a.text-muted:hover {
 
 .gap-3 {
     gap: 1rem;
+}
+
+/* ==========================================
+   Dark Mode Support (Updated with !important)
+   ========================================== */
+[data-bs-theme="dark"] body {
+    background-color: var(--background-dark) !important;
+}
+
+[data-bs-theme="dark"] body::before {
+    background-color: rgba(16, 34, 22, 0.95) !important;
+}
+
+[data-bs-theme="dark"] .card {
+    background-color: var(--card-bg-dark) !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .card-header {
+    background-color: var(--card-bg-dark) !important;
+    border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .card-footer {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-top-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .text-deep-green,
+[data-bs-theme="dark"] h1,
+[data-bs-theme="dark"] p.text-muted,
+[data-bs-theme="dark"] a.text-muted,
+[data-bs-theme="dark"] span.text-muted {
+    color: #d1d5db !important;
+}
+
+[data-bs-theme="dark"] .form-control-custom,
+[data-bs-theme="dark"] .form-select {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .form-control-custom:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border-color: var(--primary-color) !important;
+}
+
+[data-bs-theme="dark"] .form-label {
+    color: #d1d5db !important;
+}
+
+[data-bs-theme="dark"] .form-control-custom::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
 }

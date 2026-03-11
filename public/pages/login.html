@@ -5,177 +5,251 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KGL System Login | Karibu Groceries LTD</title>
 
-    <!-- Bootstrap 5.3 CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
-    <!-- Google Fonts: Inter -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Material Symbols -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-      rel="stylesheet"
-    />
-
-    <!-- Custom CSS -->
     <link href="../css/login.css" rel="stylesheet" />
   </head>
   <body>
-    <!-- Background Image with Texture and Overlay -->
+
     <div class="bg-image"></div>
 
-    <!-- Main Content Container -->
-    <main
-      class="container-fluid d-flex justify-content-center align-items-center min-vh-100 py-5"
-    >
+    <main class="container-fluid d-flex justify-content-center align-items-center min-vh-100 py-5">
       <div class="row justify-content-center w-100">
         <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 col-xxl-4">
-          <!-- Login Card -->
-          <div
-            class="card shadow-lg border-0 border-top border-4 border-warning"
-          >
-            <!-- Header Section with Logo -->
-            <div class="card-header bg-white text-center py-4 border-bottom">
-              <div
-                class="d-flex align-items-center justify-content-center gap-2 mb-3"
-              >
+          <div class="card shadow-lg border-0 border-top border-4 border-warning">
+            
+            <div class="card-header text-center py-4 border-bottom">
+              <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
                 <img src="../img/KGL_LOGO.png" alt="KGL Logo" class="kgl-logo" />
               </div>
               <div>
                 <h1 class="fs-3 fw-bold mb-2">Management Information System</h1>
-                <p class="text-muted small mb-0">
-                  Secure access for KGL personnel
-                </p>
+                <p class="text-muted small mb-0">Secure access for KGL personnel</p>
               </div>
             </div>
 
-            <!-- Login Form -->
             <div class="card-body p-4">
-              <form id = form >
-                <!-- Username -->
+              <form id="loginForm">
                 <div class="mb-4">
-                  <label
-                    class="form-label text-uppercase fw-semibold small d-flex align-items-center gap-2"
-                  >
-                    <span class="material-symbols-outlined small-icon"
-                      >person</span
-                    >
-                    Username
+                  <label class="form-label text-uppercase fw-semibold small d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined small-icon">person</span> Username
                   </label>
-                  <input
-                    type="text"
-                    class="form-control form-control-custom"
-                    placeholder="Enter your username"
-                  />
+                  <input type="text" id="username" class="form-control form-control-custom" placeholder="Enter your username" required />
                 </div>
 
-                <!-- Password -->
                 <div class="mb-4">
-                  <div
-                    class="d-flex justify-content-between align-items-center mb-2"
-                  >
-                    <label
-                      class="form-label text-uppercase fw-semibold small d-flex align-items-center gap-2 mb-0"
-                    >
-                      <span class="material-symbols-outlined small-icon"
-                        >lock</span
-                      >
-                      Password
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label text-uppercase fw-semibold small d-flex align-items-center gap-2 mb-0">
+                      <span class="material-symbols-outlined small-icon">lock</span> Password
                     </label>
                   </div>
-                  <input
-                    type="password"
-                    class="form-control form-control-custom"
-                    placeholder="Enter your password"
-                  />
-                  <a
-                    href="#"
-                    class="text-primary text-decoration-none small fw-medium"
-                    >Forgot Password?</a
-                  >
+                  <input type="password" id="password" class="form-control form-control-custom" placeholder="Enter your password" required />
+                  <a href="#" class="text-primary text-decoration-none small fw-medium">Forgot Password?</a>
                 </div>
 
-                <!-- Role Selection -->
                 <div class="mb-4">
-                  <label
-                    class="form-label text-uppercase fw-semibold small d-flex align-items-center gap-2"
-                  >
-                    <span class="material-symbols-outlined small-icon"
-                      >badge</span
-                    >
-                    System Role
+                  <label class="form-label text-uppercase fw-semibold small d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined small-icon">badge</span> System Role
                   </label>
                   <div class="position-relative">
-                    <select class="form-select form-control-custom">
+                    <select class="form-select form-control-custom" id="role">
                       <option value="manager">Manager</option>
-                      <option value="sales">Sales Agent</option>
+                      <option value="sales_agent">Sales Agent</option>
                       <option value="director">Director</option>
                     </select>
                   </div>
                 </div>
 
-                <!-- Login Button -->
+                <div class="mb-4">
+                  <label class="form-label text-uppercase fw-semibold small d-flex align-items-center gap-2">
+                    <span class="material-symbols-outlined small-icon">store</span> KGL Branch
+                  </label>
+                  <div class="position-relative">
+                    <select class="form-select form-control-custom" id="branch">
+                      <option value="Maganjo">Maganjo</option>
+                      <option value="Matugga">Matugga</option>
+                      <option value="All">N/A (Director Only)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div id="error-message" class="mb-3 small fw-bold text-center"></div>
+
                 <div class="pt-3">
-                  <button
-                    type="submit"
-                    class="btn btn-primary btn-custom w-100 d-flex align-items-center justify-content-center gap-2"
-                  >
-                    Sign In to Dashboard
+                  <button type="submit" class="btn btn-primary btn-custom w-100 d-flex align-items-center justify-content-center gap-2">
+                    Sign In to System
                     <span class="material-symbols-outlined">login</span>
                   </button>
                 </div>
               </form>
             </div>
 
-            <!-- Footer Section -->
-            <div class="card-footer bg-light text-center py-4">
-              <div
-                class="d-flex align-items-center justify-content-center gap-3 mb-3"
-              >
-                <a
-                  href="#"
-                  class="text-muted text-decoration-none small d-flex align-items-center gap-1"
-                >
-                  <span class="material-symbols-outlined small-icon"
-                    >support_agent</span
-                  >
-                  System Support
-                </a>
-                <span class="text-muted">•</span>
-                <a
-                  href="#"
-                  class="text-muted text-decoration-none small d-flex align-items-center gap-1"
-                >
-                  <span class="material-symbols-outlined small-icon"
-                    >help_center</span
-                  >
-                  Usage Policy
-                </a>
-              </div>
-              <p
-                class="small text-muted text-uppercase mb-0"
-                style="font-size: 0.65rem; letter-spacing: 0.1em"
-              >
-                © 2024 Karibu Groceries LTD. All rights reserved.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </main>
 
-    <!-- Bottom Decorative Bar -->
     <div class="progress-bar-container">
       <div class="progress-bar-fill"></div>
     </div>
 
-    <!-- Bootstrap 5.3 JS Bundle -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+
+            const userEl = document.getElementById('username');
+            const passEl = document.getElementById('password');
+            const roleEl = document.getElementById('role');
+            const branchEl = document.getElementById('branch');
+
+            if (!userEl || !passEl) {
+                console.error("Could not find username or password fields.");
+                return;
+            }
+
+           const formData = {
+                username: userEl.value.trim(),
+                password: passEl.value,
+                role: roleEl.value,       
+                branch: branchEl.value    
+            };
+
+    
+            Swal.fire({
+                title: 'Authenticating...',
+                text: 'Please wait while we verify your credentials.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const response = await fetch('http://localhost:3000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Save data to localStorage
+                    localStorage.setItem('token', result.token);
+                    localStorage.setItem('userRole', result.user.role);
+                    localStorage.setItem('userBranch', result.user.branch);
+                    localStorage.setItem('username', result.user.username);
+                    
+                    // Show Success Popup
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Login Successful!',
+                        text: `Welcome back, ${result.user.username}!`,
+                        showConfirmButton: false,
+                        timer: 1500 
+                    }).then(() => {
+                        window.location.href = result.user.role === "Manager" ? 'manager.html' :
+                            result.user.role === "Sales Agent" ? 'agent-portal.html' :
+                            result.user.role === "Director" ? 'admin-settings.html' : 'login.html';
+                    });
+
+                } else {
+                    //  Error Popup for Invalid Credentials / Access Denied
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Access Denied',
+                        text: result.message || 'Invalid username or password.',
+                        confirmButtonColor: '#0d6efd',
+                        confirmButtonText: 'Try Again'
+                    });
+                }
+            } catch (err) {
+                // Error Popup for Server Connection Issues
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Connection Error',
+                    text: 'Cannot connect to server. Ensure Node.js is running on port 3000.',
+                    confirmButtonColor: '#ffc107',
+                    confirmButtonText: 'Understood'
+                });
+                console.error("Login Error:", err);
+            }
+        });
+    }
+});
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    const loginForm = document.getElementById('loginForm');
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+
+            const userEl = document.getElementById('username');
+            const passEl = document.getElementById('password');
+            const errorDiv = document.getElementById('error-message');
+
+            if (!userEl || !passEl) {
+                console.error("Could not find username or password fields.");
+                return;
+            }
+
+            // The backend only needs username and password to authenticate
+            // We capture role/branch from the DB response, not the UI dropdowns, for security.
+            const formData = {
+                username: userEl.value,
+                password: passEl.value
+            };
+
+            try {
+                // Pointing to your Node.js backend
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // 1. Save the JWT token for accessing protected routes later
+                    localStorage.setItem('token', result.token);
+                    
+                    // 2. Save user details so the dashboard knows what to display
+                    localStorage.setItem('userRole', result.user.role);
+                    localStorage.setItem('userBranch', result.user.branch);
+                    localStorage.setItem('username', result.user.username);
+                    
+                    // 3. Redirect to the dashboard
+                    window.location.href = `${result.user.role.toLowerCase()}.html`; // e.g., admin-dashboard.html
+                } else {
+                    if (errorDiv) {
+                        errorDiv.style.color = '#dc3545'; // Bootstrap danger color
+                        errorDiv.innerText = result.message || 'Login failed. Check your credentials.';
+                    }
+                }
+            } catch (err) {
+                if (errorDiv) {
+                    errorDiv.style.color = '#dc3545';
+                    errorDiv.innerText = 'Connection error. Ensure the Node backend is running.';
+                }
+                console.error("Login Error:", err);
+            }
+        });
+    } else {
+        console.error("Login form not found in the DOM.");
+    }
+});
+</script>
   </body>
 </html>
