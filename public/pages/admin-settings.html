@@ -394,7 +394,7 @@
                 </div>
               <div class="col-12" id="passwordFieldGroup">
                        <label class="form-label small fw-bold text-muted">SET PASSWORD</label>
-                       <input type="password" id="userPassword" class="form-control form-control-custom" placeholder="Minimum 6 characters" required>
+                       <input type="password" id="userPassword" class="form-control form-control-custom" placeholder="Minimum 6 characters" required minlength="6">
               </div>
                 <div class="col-12">
                   <label class="form-label small fw-bold text-muted">EMAIL ADDRESS</label>
@@ -496,7 +496,7 @@
     const userModal = new bootstrap.Modal(document.getElementById('userModal'));
     
     // Correct API URL prefix as per your server.js mount point
-    const API_URL = 'http://localhost:3000/api/auth';
+    const API_URL = 'https://final-kgl-system-backend.onrender.com/api/auth';
 
     /**
      * 7. Search & Filter Logic
@@ -819,7 +819,7 @@ const mockAlerts = [
 // --- 1. FETCH ALL ACTIVITY FROM DATABASE ---
 async function fetchActivityData() {
     try {
-        const response = await fetch('http://localhost:3000/api/logs');
+        const response = await fetch('https://final-kgl-system-backend.onrender.com/api/logs');
         const systemActivity = await response.json();
         
         // Send the real database activity straight to the Alerts panel!
@@ -948,7 +948,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function fetchSystemLogs() {
     try {
-        const response = await fetch('http://localhost:3000/api/logs');
+        const response = await fetch('https://final-kgl-system-backend.onrender.com/api/logs');
         const logs = await response.json();
         
         const container = document.getElementById('recentAlertsContainer');
@@ -1033,7 +1033,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadDashboardAggregates() {
     try {
         // 1. Fetch ALL sales from the database (no branch filter!)
-        const response = await fetch('http://localhost:3000/api/sales');
+        const response = await fetch('https://final-kgl-system-backend.onrender.com/api/sales');
         const result = await response.json();
         
         // Handle potential different response structures (e.g., if it's wrapped in {success: true, data: [...]})

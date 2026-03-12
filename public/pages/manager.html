@@ -1024,7 +1024,7 @@ function openDateFilter() {
             try {
                 Swal.fire({ title: 'Generating Report...', text: 'Gathering inventory data', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
 
-                const response = await fetch('http://localhost:3000/api/inventory/stock');
+                const response = await fetch('https://final-kgl-system-backend.onrender.com/api/inventory/stock');
                 const result = await response.json();
 
                 if (response.ok && result.success) {
@@ -1064,7 +1064,7 @@ function openDateFilter() {
                     const newPrice = result.value;
                     try {
                         Swal.fire({ title: 'Updating Database...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-                        const response = await fetch(`http://localhost:3000/api/inventory/update-price/${itemId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ newPrice: newPrice }) });
+                        const response = await fetch(`https://final-kgl-system-backend.onrender.com/api/inventory/update-price/${itemId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ newPrice: newPrice }) });
                         const data = await response.json();
                         if (response.ok && data.success) {
                             Swal.fire({ title: 'Price Updated!', text: `${produceName} is now set to UGX ${newPrice}/KG.`, icon: 'success', confirmButtonColor: '#198754' }).then(() => { fetchInventory(); });
@@ -1107,7 +1107,7 @@ function openDateFilter() {
 
             try {
                 Swal.fire({ title: 'Saving...', text: 'Recording procurement in the database', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
-                const response = await fetch('http://localhost:3000/api/inventory/procure', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(procurementData) });
+                const response = await fetch('https://final-kgl-system-backend.onrender.com/api/inventory/procure', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(procurementData) });
                 const result = await response.json();
 
                 if (response.ok && result.success) {
@@ -1127,7 +1127,7 @@ function openDateFilter() {
 
         async function fetchInventory() {
             try {
-                const response = await fetch(`http://localhost:3000/api/inventory/stock?branch=${currentManager.branch}`);
+                const response = await fetch(`https://final-kgl-system-backend.onrender.com/api/inventory/stock?branch=${currentManager.branch}`);
                 const result = await response.json();
 
                 if (response.ok && result.success) {
@@ -1196,7 +1196,7 @@ function openDateFilter() {
         // Fetch specific branch stock for the dropdowns in the Sales Modals
         async function fetchBranchInventory() {
             try {
-                const res = await fetch(`http://localhost:3000/api/inventory/stock?branch=${currentManager.branch}`);
+                const res = await fetch(`https://final-kgl-system-backend.onrender.com/api/inventory/stock?branch=${currentManager.branch}`);
                 const result = await res.json();
                 
                 if(result.success) {
@@ -1222,7 +1222,7 @@ function openDateFilter() {
         // Fetch sales history and build the tables dynamically
      async function fetchBranchSales() {
     try {
-        const res = await fetch(`http://localhost:3000/api/sales?branch=${currentManager.branch}`);
+        const res = await fetch(`https://final-kgl-system-backend.onrender.com/api/sales?branch=${currentManager.branch}`);
         const result = await res.json();
         
         if(result.success) {
@@ -1286,7 +1286,7 @@ function openDateFilter() {
         async function postSaleToBackend(payload, modalId, formId) {
             try {
                 Swal.fire({ title: 'Processing Sale...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-                const response = await fetch('http://localhost:3000/api/sales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const response = await fetch('https://final-kgl-system-backend.onrender.com/api/sales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 const data = await response.json();
 
                 if (response.ok && data.success) {
@@ -1382,7 +1382,7 @@ async function processPayment() {
     btn.disabled = true;
 
     try {
-        const response = await fetch(`http://localhost:3000/api/sales/pay/${saleId}`, {
+        const response = await fetch(`https://final-kgl-system-backend.onrender.com/api/sales/pay/${saleId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -1412,7 +1412,7 @@ async function processPayment() {
 
         async function populateProduceDropdowns() {
     try {
-        const res = await fetch(`http://localhost:3000/api/inventory/stock?branch=${currentManager.branch}`);
+        const res = await fetch(`https://final-kgl-system-backend.onrender.com/api/inventory/stock?branch=${currentManager.branch}`);
         const result = await res.json();
         
         if (result.success) {
