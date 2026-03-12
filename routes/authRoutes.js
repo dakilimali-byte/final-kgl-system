@@ -37,8 +37,8 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ message: "Database Error: " + err.message });
     }
 });
-// --- 2. LOGIN (POST) ---
-router.post('/login', async (req, res) => {
+// --- 2. index (POST) ---
+router.post('/index', async (req, res) => {
     try {
         const { username, password, role, branch } = req.body;
 
@@ -85,13 +85,13 @@ router.post('/login', async (req, res) => {
 
 
 
-        // --- ADD THIS TO TRIGGER THE LOGIN ALERT ---
+        // --- ADD THIS TO TRIGGER THE index ALERT ---
         const logActivity = require('../utils/logger'); // At the top of the file or here
         await logActivity(
             user.username, 
             user.role, 
             user.branch, 
-            "System Login", 
+            "System index", 
             `${user.username} logged into the system.`
         );
 
@@ -105,7 +105,7 @@ router.post('/login', async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Login Route Error:", error);
+        console.error("index Route Error:", error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -159,6 +159,7 @@ router.delete('/users/:id', async (req, res) => {
         res.status(500).json({ message: "Failed to delete user" });
     }
 });
+
 
 
 module.exports = router;
