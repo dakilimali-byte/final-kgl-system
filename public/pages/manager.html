@@ -739,7 +739,7 @@
 <script>
 
   let globalBranchSales = [];
-        // --- GLOBAL DATA (Connected to your login system) ---
+        // --- GLOBAL DATA (Connected to your index system) ---
              // 1. Grab data from localStorage and handle case-sensitivity
           const currentManager = {
               id: localStorage.getItem('userId'), 
@@ -753,7 +753,7 @@
               alert("Unauthorized access. Please log in.");
               // Clear bad data just in case
               localStorage.clear(); 
-              window.location.href = 'login.html'; 
+              window.location.href = 'index.html'; 
           }
         let branchInventory = [];
 
@@ -1011,7 +1011,7 @@ function openDateFilter() {
             }).then((result) => {
                 if (result.isConfirmed) {
                     localStorage.clear();
-                    window.location.href = 'login.html';
+                    window.location.href = 'index.html';
                 }
             });
         }

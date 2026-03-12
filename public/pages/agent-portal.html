@@ -513,7 +513,7 @@ function updateInventoryUI() {
 
 
     function loadUserProfile() {
-    // 1. Grab user data from localStorage (saved during login)
+    // 1. Grab user data from localStorage (saved during index)
     const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
     const fullName = localStorage.getItem('username') || storedUser.username || storedUser.name || 'Unknown User';
     const userRole = localStorage.getItem('userRole') || storedUser.role || 'Staff';
@@ -578,8 +578,8 @@ function handleLogout() {
         
         // OR simply use localStorage.clear(); if you want to wipe absolutely everything
 
-        // 3. Redirect back to the login page
-        window.location.href = 'login.html'; // Make sure this matches your login file name!
+        // 3. Redirect back to the index page
+        window.location.href = 'index.html'; // Make sure this matches your index file name!
     }
 }
 

@@ -812,7 +812,7 @@
 // Keep mock alerts for now until you build an alerts table in the DB
 const mockAlerts = [
     { id: 'A1', title: 'Low Stock Alert', desc: 'Beans 50kg is below 5 bags at Matugga branch.', icon: 'warning', color: 'text-warning' },
-    { id: 'A2', title: 'New Device Login', desc: 'Unrecognized IP address accessed the Admin panel.', icon: 'security', color: 'text-danger' }
+    { id: 'A2', title: 'New Device index', desc: 'Unrecognized IP address accessed the Admin panel.', icon: 'security', color: 'text-danger' }
 ];
 
 // --- 1. FETCH REAL LOGS FROM DATABASE ---
@@ -849,8 +849,8 @@ function renderAlerts(activities) {
         let color = 'text-secondary';
         const actionStr = activity.action.toLowerCase();
         
-        if (actionStr.includes('login')) { 
-            icon = 'login'; color = 'text-success'; 
+        if (actionStr.includes('index')) { 
+            icon = 'index'; color = 'text-success'; 
         } else if (actionStr.includes('sale')) { 
             icon = 'shopping_cart'; color = 'text-primary'; 
         } else if (actionStr.includes('procure') || actionStr.includes('produce')) { 
@@ -968,8 +968,8 @@ async function fetchSystemLogs() {
             let iconColor = "text-secondary";
             let bgColor = "bg-light";
             
-            if (log.action.includes("Login")) { 
-                icon = "login"; iconColor = "text-success"; bgColor = "bg-success-subtle"; 
+            if (log.action.includes("index")) { 
+                icon = "index"; iconColor = "text-success"; bgColor = "bg-success-subtle"; 
             } else if (log.action.includes("Sale")) { 
                 icon = "shopping_cart"; iconColor = "text-primary"; bgColor = "bg-primary-subtle"; 
             } else if (log.action.includes("User") || log.action.includes("Staff")) { 
